@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": false,
+    "noEmit": true,
+    "rootDir": "../.."
+  },
+  "include": ["type-tests/**/*.ts", "type-tests/**/*.tsx"]
+}

@@ -1,0 +1,295 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://resources.rusl.com/resources/surface/schemas/default-kit",
+  "title": "Surface default HTML kit — widget vocabulary",
+  "description": "Kit-published schemas for annotation `widget` objects. When `widget.$kind` points at a `$defs` entry here, the entire widget value is an instance of that def (not only `options`). Core does not validate; kits and tooling may. Mode (input vs display) is Surface mode + kit registry, not separate kinds.",
+  "version": "0.1.0",
+  "$defs": {
+    "optionExpr": {
+      "title": "Option expression",
+      "description": "Path into node data, template over data, or fixed literal. String shorthand: path-like token → path; contains `{{` → template; otherwise literal. Explicit objects always win.",
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "description": "Shorthand path, template, or literal (see description)."
+        },
+        {
+          "type": "object",
+          "required": ["path"],
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Dotted path on this node's data."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["template"],
+          "additionalProperties": false,
+          "properties": {
+            "template": {
+              "type": "string",
+              "description": "`{{a.b}}` interpolation over record data."
+            }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["literal"],
+          "additionalProperties": false,
+          "properties": {
+            "literal": { "type": "string" }
+          }
+        }
+      ]
+    },
+    "input": {
+      "title": "Native input widget",
+      "description": "Open control variables for a generic text-like input. additionalProperties allowed for HTML attributes (autocomplete, maxlength, …).",
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "$kind": {
+          "type": "string",
+          "const": "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/input"
+        },
+        "options": { "type": "object", "additionalProperties": true },
+        "type": {
+          "type": "string",
+          "description": "HTML input type, e.g. text, password, email, search, tel, url."
+        },
+        "placeholder": { "type": "string" },
+        "autocomplete": { "type": "string" }
+      }
+    },
+    "date": {
+      "title": "Date widget",
+      "description": "Calendar date without time. Input: HTML date; display: plain date text.",
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "$kind": {
+          "type": "string",
+          "const": "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/date"
+        },
+        "options": { "type": "object", "additionalProperties": true },
+        "min": { "$ref": "#/$defs/optionExpr" },
+        "max": { "$ref": "#/$defs/optionExpr" }
+      }
+    },
+    "datetime": {
+      "title": "Date-time widget",
+      "description": "Date and time. Input: datetime-local with RFC 3339 on the wire; display: formatted instant.",
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "$kind": {
+          "type": "string",
+          "const": "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/datetime"
+        },
+        "options": { "type": "object", "additionalProperties": true },
+        "showSeconds": { "type": "boolean" },
+        "min": { "$ref": "#/$defs/optionExpr" },
+        "max": { "$ref": "#/$defs/optionExpr" }
+      }
+    },
+    "media": {
+      "title": "Media widget",
+      "description": "Image / video / audio from URL (or array of assets). Field maps use optionExpr.",
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "$kind": {
+          "type": "string",
+          "const": "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/media"
+        },
+        "options": { "type": "object", "additionalProperties": true },
+        "src": { "$ref": "#/$defs/optionExpr" },
+        "alt": { "$ref": "#/$defs/optionExpr" },
+        "maxHeight": { "type": "number" },
+        "maxItems": { "type": "integer", "minimum": 0 },
+        "fit": { "type": "string", "enum": ["cover", "contain"] },
+        "autoplay": { "type": "boolean" },
+        "controls": { "type": "boolean" },
+        "muted": { "type": "boolean" },
+        "loop": { "type": "boolean" },
+        "layout": {
+          "type": "string",
+          "enum": ["inline", "banner", "full", "hero"],
+          "description": "banner/full/hero: full-width title image (hides property label column)."
+        },
+        "fullWidth": {
+          "type": "boolean",
+          "description": "Alias for layout banner — full-width media."
+        }
+      }
+    },
+    "link": {
+      "title": "Link widget",
+      "description": "Anchor: href + text (text falls back to href). Supports one object, a URL string, or an array of those.",
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "$kind": {
+          "type": "string",
+          "const": "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/link"
+        },
+        "options": { "type": "object", "additionalProperties": true },
+        "href": { "$ref": "#/$defs/optionExpr" },
+        "text": { "$ref": "#/$defs/optionExpr" },
+        "label": {
+          "$ref": "#/$defs/optionExpr",
+          "description": "Alias for text."
+        },
+        "target": { "type": "string" },
+        "rel": { "type": "string" },
+        "external": { "type": "boolean" }
+      }
+    },
+    "email": {
+      "title": "Email widget",
+      "description": "Email address string. Input: HTML email; display: mailto: link.",
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "$kind": {
+          "type": "string",
+          "const": "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/email"
+        },
+        "options": { "type": "object", "additionalProperties": true },
+        "placeholder": { "type": "string" },
+        "autocomplete": { "type": "string" }
+      }
+    },
+    "tel": {
+      "title": "Telephone widget",
+      "description": "Phone string (prefer E.164 on the wire). Input: HTML tel; display: national/international format via libphonenumber-js with tel: link.",
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "$kind": {
+          "type": "string",
+          "const": "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/tel"
+        },
+        "options": { "type": "object", "additionalProperties": true },
+        "defaultCountry": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 2,
+          "description": "ISO 3166-1 alpha-2 seed for the flag picker and for parsing numbers without a leading +. Overrides createHtmlKit({ tel.defaultCountry })."
+        },
+        "countries": {
+          "type": "array",
+          "description": "Restrict the flag picker to these ISO 3166-1 alpha-2 codes. Omit for the full libphonenumber list.",
+          "items": { "type": "string", "minLength": 2, "maxLength": 2 }
+        },
+        "showCountry": {
+          "type": "boolean",
+          "description": "Show the flag / country typeahead. Default true."
+        },
+        "placeholder": { "type": "string" },
+        "autocomplete": { "type": "string" }
+      }
+    },
+    "copy": {
+      "title": "Copy widget",
+      "description": "Show the node value with a button that copies it to the clipboard.",
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "$kind": {
+          "type": "string",
+          "const": "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/copy"
+        },
+        "options": { "type": "object", "additionalProperties": true },
+        "buttonLabel": {
+          "type": "string",
+          "description": "Copy control label (default: Copy)."
+        }
+      }
+    },
+    "table": {
+      "title": "Table widget",
+      "description": "Display-only HTML table of an array of objects. Put this widget on the array field. columns are { field, label, sortable, align, fontWeight }. sort reorders display only; wire order stays index order.",
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "$kind": {
+          "type": "string",
+          "const": "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/table"
+        },
+        "options": { "type": "object", "additionalProperties": true },
+        "columns": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["field"],
+            "additionalProperties": true,
+            "properties": {
+              "field": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Item property name (or dotted path) for the cell."
+              },
+              "label": {
+                "type": "string",
+                "description": "Header text. Default: the field name."
+              },
+              "sortable": {
+                "type": "boolean",
+                "description": "Header click sorts display order. Default true."
+              },
+              "align": {
+                "type": "string",
+                "enum": ["left", "center", "right"],
+                "description": "Text alignment for the header and cells. Default left."
+              },
+              "fontWeight": {
+                "description": "CSS font-weight for the header and cells (number or keyword, e.g. 600, bold).",
+                "oneOf": [
+                  { "type": "number", "minimum": 1, "maximum": 1000 },
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "sort": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Initial display sort. Does not rewrite the array.",
+          "properties": {
+            "field": { "type": "string", "minLength": 1 },
+            "direction": { "type": "string", "enum": ["asc", "desc"] }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "@rusl-labs/surface-ajv",
+  "version": "0.1.0",
+  "description": "Recommended AJV SurfaceValidator for @rusl-labs/surface (peer dependency on ajv).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": ["dist", "README.md"],
+  "scripts": {
+    "build": "bun ../../scripts/build-package.ts",
+    "prepack": "bun run build"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "bun": "./src/index.ts",
+      "browser": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@rusl-labs/surface": "workspace:*"
+  },
+  "peerDependencies": {
+    "@rusl-labs/surface": "^0.1.0",
+    "ajv": "^8.12.0",
+    "ajv-formats": "^3.0.0"
+  }
+}

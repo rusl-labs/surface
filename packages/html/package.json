@@ -1,0 +1,45 @@
+{
+  "name": "@rusl-labs/surface-html",
+  "version": "0.1.0",
+  "description": "Composable HTML kit for @rusl-labs/surface.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "sideEffects": ["**/*.css"],
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      },
+      "./surface.css": "./surface.css",
+      "./schemas/default-kit.schema.json": "./schemas/default-kit.schema.json"
+    }
+  },
+  "files": ["dist", "schemas", "surface.css", "README.md"],
+  "scripts": {
+    "build": "bun ../../scripts/build-package.ts",
+    "prepack": "bun run build"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.tsx",
+      "bun": "./src/index.tsx",
+      "browser": "./src/index.tsx",
+      "import": "./src/index.tsx",
+      "default": "./src/index.tsx"
+    },
+    "./surface.css": "./surface.css",
+    "./schemas/default-kit.schema.json": "./schemas/default-kit.schema.json"
+  },
+  "dependencies": {
+    "@rusl-labs/surface": "workspace:*",
+    "currency.js": "2.0.4",
+    "libphonenumber-js": "^1.13.10"
+  },
+  "peerDependencies": {
+    "@rusl-labs/surface": "^0.1.0",
+    "react": ">=18.2.0 <20"
+  }
+}

@@ -1,0 +1,194 @@
+version = "1"
+
+[dependencies."bundle:rusl/bundles/feedback-schemas"]
+version = "0.1.0"
+integrity = ""
+source = "https://resources.rusl.com"
+dependencies = [
+    "schema:rusl/schemas/context-request",
+    "schema:rusl/schemas/usage-report",
+    "schema:rusl/schemas/semantic-link",
+    "schema:rusl/schemas/source-attestation",
+    "schema:rusl/schemas/migration-guide",
+    "schema:rusl/schemas/domain-interpretation",
+    "schema:rusl/schemas/context-loading-hint",
+    "schema:rusl/schemas/trust-signal",
+]
+
+[dependencies."schema:pragmatic/schemas/billing.invoice"]
+version = "0.1.0"
+integrity = "c26cbce34617b532c38c5cd9707ce83a1aa89bf73093c03765aaf976828ec3c0"
+source = "https://resources.rusl.com"
+dependencies = [
+    "schema:pragmatic/schemas/commerce.line-item",
+    "schema:pragmatic/schemas/external-reference",
+    "schema:pragmatic/schemas/money",
+    "schema:pragmatic/schemas/postal.address",
+]
+
+[dependencies."schema:pragmatic/schemas/billing.payment"]
+version = "0.1.0"
+integrity = "5ca9f9c166ff7bdba3182f2206cbdf705a785f7c3d6a35a6871755d0deb376fb"
+source = "https://resources.rusl.com"
+dependencies = [
+    "schema:pragmatic/schemas/external-reference",
+    "schema:pragmatic/schemas/money",
+]
+
+[dependencies."schema:pragmatic/schemas/billing.refund"]
+version = "0.1.0"
+integrity = "4106b0ab86e841ecb7d2c84527f8754e8cdd83046262a1a2f706c9ceaed21725"
+source = "https://resources.rusl.com"
+dependencies = [
+    "schema:pragmatic/schemas/external-reference",
+    "schema:pragmatic/schemas/money",
+]
+
+[dependencies."schema:pragmatic/schemas/commerce.line-item"]
+version = "0.1.0"
+integrity = "8261e1ab128f9e6b7deae84794effc9024f97edfead337af3c8ca73ff7b8627e"
+source = "https://resources.rusl.com"
+dependencies = [
+    "schema:pragmatic/schemas/external-reference",
+    "schema:pragmatic/schemas/money",
+]
+
+[dependencies."schema:pragmatic/schemas/commerce.order"]
+version = "0.1.0"
+integrity = "776b92922447d1b3f7e24c6c90ce3ab86f7247de62f3a46e2a0aec713da4b187"
+source = "https://resources.rusl.com"
+dependencies = [
+    "schema:pragmatic/schemas/money",
+    "schema:pragmatic/schemas/postal.address",
+    "schema:pragmatic/schemas/commerce.line-item",
+    "schema:pragmatic/schemas/external-reference",
+]
+
+[dependencies."schema:pragmatic/schemas/commerce.price"]
+version = "0.1.0"
+integrity = "9c97feab7549788ec063ccc3079034214e08212d9a4b294c47e99d445814043d"
+source = "https://resources.rusl.com"
+dependencies = [
+    "schema:pragmatic/schemas/money",
+    "schema:pragmatic/schemas/external-reference",
+]
+
+[dependencies."schema:pragmatic/schemas/commerce.product"]
+version = "0.1.0"
+integrity = "c40d768084623c579972c67ba8249325542e0576f9e8928c21be01c591cac22f"
+source = "https://resources.rusl.com"
+dependencies = ["schema:pragmatic/schemas/external-reference"]
+
+[dependencies."schema:pragmatic/schemas/contact.card"]
+version = "0.1.0"
+integrity = "5662faf4448a29be3c77769a71ad7eea5b498c6a8909316ba24f75134714c7cd"
+source = "https://resources.rusl.com"
+dependencies = [
+    "schema:pragmatic/schemas/external-reference",
+    "schema:pragmatic/schemas/postal.address",
+    "schema:pragmatic/schemas/contact.scalars",
+    "schema:pragmatic/schemas/contact.social-handle",
+]
+
+[dependencies."schema:pragmatic/schemas/contact.scalars"]
+version = "0.1.0"
+integrity = "5a01c77a963dc9caf90cd5edc7fe6db818c7fa5d1398afac64dff0706567ac46"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:pragmatic/schemas/contact.social-handle"]
+version = "0.1.0"
+integrity = "4c438520d3fe3f0006932cdf2cfcf8dc0595a8d228bfd4262a63ff123d69d345"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:pragmatic/schemas/currency-code"]
+version = "0.1.0"
+integrity = "d3d004e090fa33495f57529f8dbd32ff354faaa3833dea071e1c220b886302ed"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:pragmatic/schemas/external-reference"]
+version = "0.1.0"
+integrity = "16bbb4fd0acf810c6bb4ac3b5c0a2b1bfd9f7b875b4445793fb86c9ec378dceb"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:pragmatic/schemas/geo"]
+version = "0.1.0"
+integrity = "8894e94c693c101964cd816797e16c17cd45c0b4954cee7adddd2eee0371cdd7"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:pragmatic/schemas/money"]
+version = "0.1.0"
+integrity = "0d7162750d232239e3889c071a2c36f1d8daf0ea612e02ea0c98e8063933e0f8"
+source = "https://resources.rusl.com"
+dependencies = ["schema:pragmatic/schemas/currency-code"]
+
+[dependencies."schema:pragmatic/schemas/postal.address"]
+version = "0.1.2"
+integrity = "2c626c44ac008d8a7db63f2def8f3aefbbcaf04f797742a87bc7fe92cfe8f70a"
+source = "https://resources.rusl.com"
+dependencies = [
+    "schema:pragmatic/schemas/postal.au-address",
+    "schema:pragmatic/schemas/us-address",
+]
+
+[dependencies."schema:pragmatic/schemas/postal.au-address"]
+version = "0.1.0"
+integrity = "8639db686887eca20aba57c2d74f111fc9a7f0ac2219da2cc6aaedfb49309344"
+source = "https://resources.rusl.com"
+dependencies = [
+    "schema:pragmatic/schemas/geo",
+    "schema:pragmatic/schemas/subdivision-code",
+]
+
+[dependencies."schema:pragmatic/schemas/subdivision-code"]
+version = "0.1.0"
+integrity = "1c74cce37bfbbd9dc5c402b7692b4c525d084138840d497eb571cedcb9063672"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:pragmatic/schemas/us-address"]
+version = "1.0.0"
+integrity = "7c7fc575970dc24e842c3a5829cef5e4c534b57d6af804220f12f3fc566a6588"
+source = "https://resources.rusl.com"
+dependencies = [
+    "schema:pragmatic/schemas/geo",
+    "schema:pragmatic/schemas/subdivision-code",
+]
+
+[dependencies."schema:rusl/schemas/context-loading-hint"]
+version = "0.1.0"
+integrity = "86dd680f498b8aecae48be2c65d0c260c7488f8f9d79bd8fd8e3150b9fce7b79"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:rusl/schemas/context-request"]
+version = "0.1.0"
+integrity = "bca80cc88df35418c7b5d904d10d368715aa3e993171f4f34163492e855fac90"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:rusl/schemas/domain-interpretation"]
+version = "0.1.0"
+integrity = "10c5aacbc803c030dae2ff02cc0c758646deec49c0385d109fbed57abc70209c"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:rusl/schemas/migration-guide"]
+version = "0.1.0"
+integrity = "d1e5e6a9060c73e4b44a0e4c1b5059999a62ee0044a787f05dd7688677b71c91"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:rusl/schemas/semantic-link"]
+version = "0.1.0"
+integrity = "98c44186891928be8e18203a1c81a0f5d5416382f87e2d38b775efae92b976d7"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:rusl/schemas/source-attestation"]
+version = "0.1.0"
+integrity = "2bf95131623bf892dc85ad4a4a58afde8c460aa7bd0da93f2e918918723f9e2b"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:rusl/schemas/trust-signal"]
+version = "0.1.0"
+integrity = "705be8625c14e5770f6c643c9e35b84c983ac6ba5ab11c7681543927c184d0bc"
+source = "https://resources.rusl.com"
+
+[dependencies."schema:rusl/schemas/usage-report"]
+version = "0.1.0"
+integrity = "973d1c5d060395e2ce5a61eb99b40f29b27708c2523f329d08994af7a3339721"
+source = "https://resources.rusl.com"
