@@ -1,7 +1,7 @@
 /**
- * Vendored default HTML kit widget vocabulary.
+ * Default HTML kit widget vocabulary.
  * Schema: `packages/html/schemas/default-kit.schema.json`
- * (publish later under the surface package / Rusl account).
+ * Published as `@rusl-labs/surface-html/schemas/default-kit.schema.json`.
  */
 
 /** Document `$id` for the default kit vocabulary. */

@@ -3,30 +3,28 @@
   "version": "0.1.0",
   "description": "Validator-agnostic recursive React runtime for JSON Schema forms and displays.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rusl-labs/surface.git",
+    "directory": "packages/core"
+  },
   "type": "module",
   "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "publishConfig": {
-    "access": "public",
-    "exports": {
-      ".": {
-        "types": "./dist/index.d.ts",
-        "import": "./dist/index.js",
-        "default": "./dist/index.js"
-      }
-    }
+    "access": "public"
   },
-  "files": ["dist", "README.md"],
+  "files": ["dist", "README.md", "LICENSE"],
   "scripts": {
     "build": "bun ../../scripts/build-package.ts",
     "prepack": "bun run build"
   },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "bun": "./src/index.ts",
-      "browser": "./src/index.ts",
-      "import": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "peerDependencies": {
