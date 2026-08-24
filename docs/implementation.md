@@ -12,7 +12,8 @@ What the Surface runtime **actually does** today. Direction: [`plan.md`](./plan.
 
 ## Core
 
-- Kit registry: `resolveRenderer` + `fallback`; candidate keys `$id` → **`widget.$kind`** → `widget:name` → format → const → enum → type → combinators
+- Kit registry: `resolveRenderer` + `fallback`; candidate keys `$id` → **subject-root coordinate** (`<uri>` or `<uri>#/$defs/<name>`) → **`widget.$kind`** → `widget:name` → format → const → enum → type → combinators
+- `createRegistryKit({ aliases })` — one hop; explicit alias-key registration wins
 - Optional `kit.Root` wraps the root body (`isRoot`)
 - Schema + annotation resolve; coordinates; `helpers.fields` / `label` / `description` / **`layout`** / **`direction`**
 - Data channel: controlled or draft; `setData` / `setChild`; omit optional keys on Remove (`undefined`)
@@ -33,14 +34,16 @@ What the Surface runtime **actually does** today. Direction: [`plan.md`](./plan.
 
 - Structural renderers per mode: string, number, boolean, const, enum, object, array, allOf, oneOf/anyOf
 - **Layout:** stack vs props field chrome; section body flex + data attrs for CSS
-- **Default kit widgets:** media, link, email, tel, copy, input, date, datetime, table, uri (short name + aliases for `$kind` URIs and well-known formats)
-- **Money / phone:** `$id` widgets (`currency.js`, `libphonenumber-js`); schemas are not vendored in the kit
-- **`createRegistryKit({ aliases })`:** one hop; host aliases override kit defaults
+- **Default kit widgets:** media, link, email, tel, copy, input, date, datetime, table, uri
+- **Short names once; aliases reuse them:** `$kind` URIs, `PHONE_ID` → `tel`, `date-time` → `datetime`, `idn-email` → `email`, `uri-reference` / `iri` / `iri-reference` → `uri`. Host `createHtmlKit({ aliases })` merges `{ ...HTML_KIT_ALIASES, ...user }`
+- **Money / phone:** `$id` widgets (`currency.js`, `libphonenumber-js`). `PHONE_ID` = `…/contact.scalars#/$defs/phone` (no slash before `#`) — map key only; schemas are not vendored in the kit
+- **`createHtmlKit({ locale, money, tel, date, aliases, resolvers })`**
 - **`Surface` `labels`:** inherited; `false` hides field chrome
-- Vocabulary schema: `packages/html/schemas/default-kit.schema.json`
+- **Table:** display-only; sort is view-only; columns `field` / `label` / `sortable` / `align` / `fontWeight`
+- Vocabulary schema: `packages/html/schemas/default-kit.schema.json` (published as `@rusl-labs/surface-html/schemas/default-kit.schema.json`)
 - `HtmlRoot`: Reset/Save **buttons** (not native form submit); before validate, deep-apply schema `const` (forced) + `default` (when missing); then validate → `onSubmit`; optional structured presence (Add/Remove) input-only
-- date-time: `datetime-local` ↔ RFC 3339; field-level a11y hooks
-- tel display: `libphonenumber-js` national/`tel:` formatting
+- date-time: registered as `datetime`; `date-time` aliases in; `datetime-local` ↔ RFC 3339
+- tel: messy national draft, E.164 on blur; display is a locale `tel:` link
 - Opt-in stylesheet: `@rusl-labs/surface-html/surface.css`
 
 
@@ -55,15 +58,13 @@ Vendored graph (`rusl.bundle.toml`): postal.address, money, contact.card, billin
 
 Playground (`bun run playground`, `PORT` supported): **subject catalog** (searchable grouped sidebar) mounts any seeded `$id` with starter annotations; `?subject=` URL sync; Mode / View chrome; live annotation editor.
 
-Default kit widgets: media, link, **email**, **tel**, **copy**, input, date, datetime; money via `$id` takeover (`currency.js`, `libphonenumber-js`).
-
 ## Tests
 
 Core, HTML, AJV: data channel, form, enum, postal discriminator, layout/direction, media/link/email/tel/copy widgets, money `$id` kit, product sample validation.
 
 ## Next (see plan.md)
 
-1. Publish + consumer docs (`0.1.0`).
+1. Publish `0.1.0` when npm / git remotes are confirmed.
 2. Architecture review — later.
 
 ## Non-goals
@@ -75,7 +76,7 @@ Core, HTML, AJV: data channel, form, enum, postal discriminator, layout/directio
 ## Run
 
 ```bash
-bun test && bun run typecheck
+bun run check
 bun run playground   # PORT=3001 optional
 ```
 
