@@ -17,7 +17,7 @@ Local implementation state and behavior-bearing TypeScript interfaces do not nee
 | Declared external dependencies | `rusl.bundle.toml` |
 | Exact resolved versions | `rusl.lock` — generated; do not edit by hand |
 | Installed external schemas | `schemas/` — committed output of `rusl install`; do not edit by hand |
-| What ships / roadmap | `docs/implementation.md`, `docs/plan.md` |
+| What ships | `docs/implementation.md` |
 | Annotation model | `docs/annotation.md` + runtime (`packages/core`) |
 | Annotation envelope | `docs/annotation-format.schema.json` — document / view / field shell |
 | Kit authoring | `docs/guides/building-kits.md` + `packages/html` |

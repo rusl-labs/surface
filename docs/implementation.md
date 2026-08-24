@@ -1,6 +1,6 @@
 # Implementation status
 
-What the Surface runtime **actually does** today. Direction: [`plan.md`](./plan.md).
+What the Surface runtime **actually does** today.
 
 ## Packages
 
@@ -56,16 +56,12 @@ What the Surface runtime **actually does** today. Direction: [`plan.md`](./plan.
 
 Vendored graph (`rusl.bundle.toml`): postal.address, money, contact.card, billing.invoice / payment / refund, **commerce.product / order / price**, and deps, plus `rusl/bundles/feedback-schemas`.
 
-Playground (`bun run playground`, `PORT` supported): **subject catalog** (searchable grouped sidebar) mounts any seeded `$id` with starter annotations; `?subject=` URL sync; Mode / View chrome; live annotation editor.
+Playground (`bun run playground`, `PORT` supported): **subject catalog** (searchable grouped sidebar) mounts any seeded `$id` with the seeded annotations; `?subject=` URL sync; Mode / View chrome; live annotation editor.
 
 ## Tests
 
 Core, HTML, AJV: data channel, form, enum, postal discriminator, layout/direction, media/link/email/tel/copy widgets, money `$id` kit, product sample validation.
 
-## Next (see plan.md)
-
-1. Publish `0.1.0` when npm / git remotes are confirmed.
-2. Architecture review — later.
 
 ## Non-goals
 
@@ -84,7 +80,6 @@ bun run playground   # PORT=3001 optional
 
 | Doc | Role |
 | --- | --- |
-| [plan.md](./plan.md) | Loose roadmap |
 | [annotation.md](./annotation.md) | Annotation model |
 | [annotation-format.schema.json](./annotation-format.schema.json) | Format contract |
 | [guides/building-kits.md](./guides/building-kits.md) | Kit guide |
