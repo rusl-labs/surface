@@ -48,7 +48,7 @@ const CODE_ANNOTATION: AnnotationDocument = {
             widget: {
               name: "copy",
               $kind:
-                "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/copy",
+                "https://resources.rusl.com/resources/rusl/schemas/surface.default-kit#/$defs/copy",
             },
           },
         },

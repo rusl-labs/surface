@@ -119,7 +119,7 @@ const PHOTO_ANNOTATION: AnnotationDocument = {
             widget: {
               name: "media",
               $kind:
-                "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/media",
+                "https://resources.rusl.com/resources/rusl/schemas/surface.default-kit#/$defs/media",
               src: "url",
               alt: "alt",
               maxHeight: 80,

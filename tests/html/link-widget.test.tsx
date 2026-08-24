@@ -143,7 +143,7 @@ const REF_ANNOTATION: AnnotationDocument = {
             widget: {
               name: "link",
               $kind:
-                "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/link",
+                "https://resources.rusl.com/resources/rusl/schemas/surface.default-kit#/$defs/link",
               href: "url",
               text: "label",
             },

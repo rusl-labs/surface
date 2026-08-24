@@ -87,7 +87,7 @@ const PHONE_ANNOTATION: AnnotationDocument = {
             widget: {
               name: "tel",
               $kind:
-                "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/tel",
+                "https://resources.rusl.com/resources/rusl/schemas/surface.default-kit#/$defs/tel",
             },
           },
         },
@@ -111,7 +111,7 @@ function phoneInputAnnotation(
             widget: {
               name: "tel",
               $kind:
-                "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/tel",
+                "https://resources.rusl.com/resources/rusl/schemas/surface.default-kit#/$defs/tel",
               ...widget,
             },
           },
