@@ -1,30 +1,30 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://resources.rusl.com/resources/pragmatic/schemas/surface.annotation.v1",
+  "$id": "https://resources.rusl.com/resources/rusl/schemas/surface.annotation",
   "title": "Surface annotation document",
-  "description": "Declarative presentation for one subject schema. Presentation only: no components, no code, no constraints. See docs/annotation.md.",
+  "description": "Presentation for one subject schema. No components, no code, no constraints.",
   "type": "object",
   "required": ["subject"],
   "anyOf": [{ "required": ["views"] }, { "required": ["defs"] }],
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
+    "$kind": { "const": "https://resources.rusl.com/resources/rusl/schemas/surface.annotation" },
     "subject": {
       "type": "string",
       "minLength": 1,
-      "description": "The subject schema's $id (or documentUri when it has no $id)."
+      "description": "The target schema's $id."
     },
     "targetLibraries": {
       "type": "array",
       "items": { "type": "string", "minLength": 1 },
-      "description": "Optional kit/library identifiers this annotation targets (e.g. @rusl-labs/surface-html). Metadata for tooling and kit authors; core does not filter renderers on this field."
+      "description": "Kit identifiers this annotation targets. Metadata for tooling only; core ignores this field."
     },
     "views": {
       "type": "object",
       "minProperties": 1,
       "propertyNames": { "minLength": 1 },
       "additionalProperties": { "$ref": "#/$defs/view" },
-      "description": "Named views; `default` is the fallback view."
+      "description": "Named views. default is the fallback."
     },
     "defs": {
       "type": "object",
@@ -42,7 +42,7 @@
           }
         }
       },
-      "description": "Per-def view blocks; defs.<name> targets #/$defs/<name>, applying at every use site."
+      "description": "Per-def view blocks. defs.<name> targets #/$defs/<name> at every use site."
     }
   },
   "$defs": {
@@ -62,12 +62,12 @@
     "fieldLayout": {
       "type": "string",
       "enum": ["props", "stack"],
-      "description": "How bound fields are chrome'd in this view/section. props = label|value rows (default). stack = full-width blocks (heroes, cards)."
+      "description": "Field chrome style. props: label next to value (default). stack: full-width blocks."
     },
     "fieldDirection": {
       "type": "string",
       "enum": ["vertical", "horizontal"],
-      "description": "Flow of the section/view body. vertical = column (default). horizontal = row (wrap). Intended with layout stack; props stays a definition list internally."
+      "description": "Body flow. vertical: column (default). horizontal: wrapping row."
     },
     "fieldList": {
       "type": "array",
@@ -92,7 +92,7 @@
       "type": "object",
       "required": ["kind"],
       "additionalProperties": false,
-      "description": "Structural block chrome. Discriminated by kind:block.",
+      "description": "Structural block chrome.",
       "properties": {
         "kind": { "const": "block" },
         "label": { "type": ["string", "null"] },
@@ -103,7 +103,7 @@
         "fields": { "$ref": "#/$defs/fieldList" },
         "template": {
           "type": "string",
-          "description": "Optional interpolated prose inside the chrome (same rules as templateEntry)."
+          "description": "Interpolated text inside the chrome. Same rules as templateEntry."
         },
         "input": { "$ref": "#/$defs/modeOverride" },
         "display": { "$ref": "#/$defs/modeOverride" }
@@ -113,7 +113,7 @@
       "type": "object",
       "required": ["kind"],
       "additionalProperties": false,
-      "description": "Full-bleed banner chrome. Discriminated by kind:banner.",
+      "description": "Full-bleed banner chrome.",
       "properties": {
         "kind": { "const": "banner" },
         "label": { "type": ["string", "null"] },
@@ -131,7 +131,7 @@
       "type": "object",
       "required": ["kind"],
       "additionalProperties": false,
-      "description": "Inline span chrome for short prose or nested fields. Discriminated by kind:span.",
+      "description": "Inline chrome for short prose or nested fields.",
       "properties": {
         "kind": { "const": "span" },
         "label": { "type": ["string", "null"] },
@@ -150,24 +150,24 @@
         "name": {
           "type": "string",
           "minLength": 1,
-          "description": "A single literal property name of the containing object. Never dotted, never a pointer; nesting is expressed with `fields`."
+          "description": "A single property name on the containing object. Never dotted. Nest with fields."
         },
         "label": { "type": ["string", "null"], "description": "null clears a key inherited from the default view or a ref target." },
         "description": { "type": ["string", "null"] },
-        "hidden": { "type": ["boolean", "null"], "description": "Present but not shown; participates and submits." },
+        "hidden": { "type": ["boolean", "null"], "description": "Not shown but still submits with the form." },
         "omit": { "type": ["boolean", "null"], "description": "Not part of the presentation at all." },
-        "view": { "type": ["string", "null"], "description": "Requested view for the child Surface; flows to descendants." },
-        "itemLabel": { "type": ["string", "null"], "description": "Array entries: singular noun for add/remove/empty affordances." },
+        "view": { "type": ["string", "null"], "description": "View for the child Surface. Flows to descendants." },
+        "itemLabel": { "type": ["string", "null"], "description": "Singular noun for array item controls (add, remove, empty state)." },
         "addLabel": {
           "type": ["string", "null"],
-          "description": "Visible caption on the collection add control. Omit for icon-only. `{{path}}` interpolates over this node's data (HTML-escaped). Does not replace itemLabel (still used for remove a11y)."
+          "description": "Label on the add button. Omit for icon-only. {{path}} interpolates over this node's data."
         },
         "items": {
           "$ref": "#/$defs/itemEntry",
-          "description": "Array entries: describes the item node (inline item objects). For $ref items, chrome merges over the target; fields is ignored."
+          "description": "Describes inline array items. For $ref items, annotate the target schema instead; fields is ignored here."
         },
         "widget": { "oneOf": [{ "$ref": "#/$defs/widget" }, { "type": "null" }] },
-        "fields": { "$ref": "#/$defs/fieldList", "description": "Nested literal object layout. Ignored on $ref entries (use-site chrome only)." },
+        "fields": { "$ref": "#/$defs/fieldList", "description": "Nested object layout. Ignored when the entry is a $ref." },
         "rest": { "$ref": "#/$defs/rest" },
         "input": { "$ref": "#/$defs/modeOverride" },
         "display": { "$ref": "#/$defs/modeOverride" }
@@ -193,14 +193,14 @@
       "properties": {
         "label": {
           "type": "string",
-          "description": "Section heading. Empty string = anonymous group (layout only, no heading)."
+          "description": "Section heading. Empty string for an anonymous group with no heading."
         },
         "description": { "type": ["string", "null"] },
         "layout": { "$ref": "#/$defs/fieldLayout" },
         "direction": { "$ref": "#/$defs/fieldDirection" },
         "omit": { "type": ["boolean", "null"] },
-        "widget": { "$ref": "#/$defs/widget", "description": "Kit treatment for the group (e.g. danger, collapsible). Unknown treatment degrades to a plain section." },
-        "fields": { "$ref": "#/$defs/fieldList", "description": "Omit for a flat heading. A section with no visible children contributes nothing." },
+        "widget": { "$ref": "#/$defs/widget", "description": "Kit treatment for the group. Unknown treatments degrade to a plain section." },
+        "fields": { "$ref": "#/$defs/fieldList", "description": "Omit for a heading-only section. A section with no visible children is hidden." },
         "input": { "$ref": "#/$defs/modeOverride" },
         "display": { "$ref": "#/$defs/modeOverride" }
       }
@@ -212,7 +212,7 @@
       "properties": {
         "template": {
           "type": "string",
-          "description": "Handlebars-style key access over the containing object's data; keys may be dotted ({{actor.name}}). Always HTML-escaped. No expressions, no formatting pipes, no code. Missing keys or segments interpolate empty."
+          "description": "Interpolated text. Dotted keys allowed ({{actor.name}}). Always HTML-escaped. Missing keys render empty."
         },
         "label": { "type": ["string", "null"] },
         "omit": { "type": ["boolean", "null"] },
@@ -225,14 +225,14 @@
       "required": ["rest"],
       "additionalProperties": false,
       "properties": {
-        "rest": { "const": true, "description": "Placement slot for unlisted properties. Design rule: at most one per OBJECT SCOPE (sections transparent) — the schema can only check per list. Absent means they land at the end." }
+        "rest": { "const": true, "description": "Where unlisted properties appear. Absent: after listed fields. At most one per field list." }
       }
     },
     "modeOverride": {
       "type": "object",
       "minProperties": 1,
       "additionalProperties": false,
-      "description": "Decoration keys only — layout (fields/rest/items) is per-view, not per-mode. `null` clears an inherited key. `hidden` applies to schema-bound entries only; virtual entries use `omit`.",
+      "description": "Per-mode overrides for decoration keys. Layout (fields, rest, items) stays per-view. null clears an inherited value.",
       "properties": {
         "label": { "type": ["string", "null"] },
         "description": { "type": ["string", "null"] },
@@ -248,7 +248,7 @@
       "type": "object",
       "required": ["name"],
       "additionalProperties": true,
-      "description": "Kit-facing presentation attachment. The envelope owns name / $kind / options only. When `$kind` is set, the **entire** widget value is an instance of that kit schema (default HTML kit: packages/html/schemas/default-kit.schema.json#/$defs/<kind>). Extra properties are allowed on the object itself; `options` is an optional nested bag. Without `$kind`, treat as an open grab-bag for the named renderer. Core does not validate $kind.",
+      "description": "Widget selection. When $kind is set, the entire widget value must conform to that kit schema's def. Without $kind, the renderer owned by name interprets the properties. Core does not validate $kind.",
       "properties": {
         "name": {
           "type": "string",
@@ -258,18 +258,18 @@
         "$kind": {
           "type": "string",
           "minLength": 1,
-          "description": "Absolute URI of the schema (or def) this widget object conforms to. Candidate key for renderer resolution; takes precedence over `name`. Core does not validate — kits and tooling do."
+          "description": "Absolute URI of the kit def this widget conforms to. Takes precedence over name in renderer resolution."
         },
         "options": {
           "type": "object",
           "additionalProperties": true,
-          "description": "Optional nested param bag. Kinds may prefer top-level properties on `widget` instead; both are open."
+          "description": "Nested renderer params. Top-level properties on widget are also allowed; both are open."
         }
       }
     },
     "rest": {
       "enum": ["append", "omit"],
-      "description": "Unlisted properties: append (schema order, default) or omit entirely."
+      "description": "append: unlisted properties shown in schema order (default). omit: hidden."
     }
   }
 }

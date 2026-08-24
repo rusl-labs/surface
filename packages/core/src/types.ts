@@ -45,7 +45,7 @@ export interface AnnotationEntry {
  * Views and defs stay opaque here; the field helpers consume them.
  */
 export interface AnnotationDocument {
-  readonly $schema?: string;
+  readonly $kind?: string;
   readonly subject: string;
   /** Kit/library ids this annotation targets; tooling metadata only. */
   readonly targetLibraries?: readonly string[];

@@ -31,6 +31,16 @@ const formatSchema = JSON.parse(
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 const validateAnnotation = ajv.compile(formatSchema);
 
+function viewsOf(doc: { views?: Record<string, unknown> }): Record<string, unknown> {
+  return doc.views ?? {};
+}
+
+function viewFields(view: unknown): readonly unknown[] {
+  if (typeof view !== "object" || view === null) return [];
+  const fields = (view as { fields?: unknown }).fields;
+  return Array.isArray(fields) ? fields : [];
+}
+
 describe("playground contact annotations", () => {
   test("seeded subject starters validate", () => {
     expect(validateAnnotation(CONTACT_ANNOTATION)).toBe(true);
@@ -43,10 +53,11 @@ describe("playground contact annotations", () => {
   });
 
   test("contact density views and nested display remounts", () => {
-    expect(CONTACT_ANNOTATION.views.identity).toBeDefined();
-    expect(CONTACT_ANNOTATION.views.row).toBeDefined();
-    expect(CONTACT_ANNOTATION.views.card).toBeDefined();
-    const addresses = CONTACT_ANNOTATION.views.default?.fields?.find(
+    const views = viewsOf(CONTACT_ANNOTATION);
+    expect(views.identity).toBeDefined();
+    expect(views.row).toBeDefined();
+    expect(views.card).toBeDefined();
+    const addresses = viewFields(views.default).find(
       (f) =>
         typeof f === "object" &&
         f !== null &&
@@ -54,7 +65,7 @@ describe("playground contact annotations", () => {
         (f as { name?: string }).name === "addresses",
     ) as { display?: { view?: string } } | undefined;
     expect(addresses?.display?.view).toBe("card");
-    const ext = CONTACT_ANNOTATION.views.default?.fields?.find(
+    const ext = viewFields(views.default).find(
       (f) =>
         typeof f === "object" &&
         f !== null &&
@@ -65,23 +76,25 @@ describe("playground contact annotations", () => {
   });
 
   test("postal has row/card and no identity; money default-only", () => {
-    expect(POSTAL_ANNOTATION.views.identity).toBeUndefined();
-    expect(POSTAL_ANNOTATION.views.row).toBeDefined();
-    expect(POSTAL_ANNOTATION.views.card).toBeDefined();
-    expect(Object.keys(MONEY_ANNOTATION.views)).toEqual(["default"]);
-    expect(PRODUCT_ANNOTATION.views.identity).toBeDefined();
-    expect(EXTERNAL_REFERENCE_ANNOTATION.views.row).toBeDefined();
-    expect(EXTERNAL_REFERENCE_ANNOTATION.views.identity).toBeUndefined();
+    const postal = viewsOf(POSTAL_ANNOTATION);
+    expect(postal.identity).toBeUndefined();
+    expect(postal.row).toBeDefined();
+    expect(postal.card).toBeDefined();
+    expect(Object.keys(viewsOf(MONEY_ANNOTATION))).toEqual(["default"]);
+    expect(viewsOf(PRODUCT_ANNOTATION).identity).toBeDefined();
+    expect(viewsOf(EXTERNAL_REFERENCE_ANNOTATION).row).toBeDefined();
+    expect(viewsOf(EXTERNAL_REFERENCE_ANNOTATION).identity).toBeUndefined();
   });
 
   test("invoice + line-item starters validate and keep density views", () => {
     expect(validateAnnotation(INVOICE_ANNOTATION)).toBe(true);
     expect(validateAnnotation(LINE_ITEM_ANNOTATION)).toBe(true);
-    expect(INVOICE_ANNOTATION.views.identity).toBeUndefined();
-    expect(INVOICE_ANNOTATION.views.row).toBeDefined();
-    expect(INVOICE_ANNOTATION.views.card).toBeDefined();
-    expect(LINE_ITEM_ANNOTATION.views.row).toBeDefined();
-    const lineItems = INVOICE_ANNOTATION.views.default?.fields?.find(
+    const invoice = viewsOf(INVOICE_ANNOTATION);
+    expect(invoice.identity).toBeUndefined();
+    expect(invoice.row).toBeDefined();
+    expect(invoice.card).toBeDefined();
+    expect(viewsOf(LINE_ITEM_ANNOTATION).row).toBeDefined();
+    const lineItems = viewFields(invoice.default).find(
       (f) =>
         typeof f === "object" &&
         f !== null &&

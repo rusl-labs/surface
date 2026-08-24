@@ -5,10 +5,10 @@
  */
 import type { AnnotationDocument } from "@rusl-labs/surface";
 import { EXTERNAL_REFERENCE_ID } from "../../../tests/fixtures/pragmatic-seeds.ts";
-import { ANNOTATION_SCHEMA, TARGET_HTML } from "./shared.ts";
+import { ANNOTATION_KIND, TARGET_HTML } from "./shared.ts";
 
 export const EXTERNAL_REFERENCE_ANNOTATION: AnnotationDocument = {
-  $schema: ANNOTATION_SCHEMA,
+  $kind: ANNOTATION_KIND,
   subject: EXTERNAL_REFERENCE_ID,
   targetLibraries: [...TARGET_HTML],
   views: {

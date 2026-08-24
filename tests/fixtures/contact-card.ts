@@ -44,8 +44,8 @@ export const CONTACT_DATA = {
 
 /** The playground's annotation document, verbatim. */
 export const WALKTHROUGH_ANNOTATION: AnnotationDocument = {
-  $schema:
-    "https://resources.rusl.com/resources/pragmatic/schemas/surface.annotation.v1",
+  $kind:
+    "https://resources.rusl.com/resources/rusl/schemas/surface.annotation",
   subject: CONTACT_CARD,
   views: {
     default: {

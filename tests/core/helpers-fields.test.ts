@@ -15,6 +15,12 @@ import {
   CONTACT_SCHEMA,
   WALKTHROUGH_ANNOTATION,
 } from "../fixtures/contact-card.ts";
+import {
+  PERSON,
+  PERSON_SCHEMA,
+  fieldByName,
+  names,
+} from "./helpers-fields-support.ts";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const formatSchema = JSON.parse(
@@ -26,50 +32,6 @@ const formatSchema = JSON.parse(
 
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 const validateAnnotation = ajv.compile(formatSchema);
-
-function names(fields: ReturnType<typeof listFields>): string[] {
-  const out: string[] = [];
-  for (const f of fields) {
-    if (f.kind === "field") out.push(f.surface.id);
-    else if (f.kind === "section") out.push(...names([...f.children()]));
-  }
-  return out;
-}
-
-type FieldYield = Extract<
-  ReturnType<typeof listFields>[number],
-  { kind: "field" }
->;
-
-function fieldByName(
-  fields: ReturnType<typeof listFields>,
-  name: string,
-): FieldYield {
-  for (const f of fields) {
-    if (f.kind === "field" && f.surface.id === name) return f;
-    if (f.kind === "section") {
-      try {
-        return fieldByName([...f.children()], name);
-      } catch {
-        // keep scanning siblings
-      }
-    }
-  }
-  throw new Error(`expected field ${name}`);
-}
-
-const PERSON = "https://example.test/person";
-const PERSON_SCHEMA: Schema = {
-  $id: PERSON,
-  type: "object",
-  properties: {
-    name: { type: "string" },
-    title: { type: "string" },
-    email: { type: "string", format: "email" },
-    secret: { type: "string" },
-    note: { type: "string" },
-  },
-};
 
 describe("helpers.fields", () => {
   test("walkthrough fixture validates against annotation-format.schema.json", () => {

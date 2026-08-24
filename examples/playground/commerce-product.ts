@@ -4,13 +4,13 @@ import {
   DEFAULT_KIT_LINK,
   DEFAULT_KIT_MEDIA,
 } from "../../packages/html/src/default-kit.ts";
-import { ANNOTATION_SCHEMA, TARGET_HTML } from "./annotations/shared.ts";
+import { ANNOTATION_KIND, TARGET_HTML } from "./annotations/shared.ts";
 
 export const COMMERCE_PRODUCT_ID =
   "https://resources.rusl.com/resources/pragmatic/schemas/commerce.product";
 
 export const PRODUCT_ANNOTATION: AnnotationDocument = {
-  $schema: ANNOTATION_SCHEMA,
+  $kind: ANNOTATION_KIND,
   subject: COMMERCE_PRODUCT_ID,
   targetLibraries: [...TARGET_HTML],
   views: {

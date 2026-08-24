@@ -12,10 +12,10 @@
  */
 import type { AnnotationDocument } from "@rusl-labs/surface";
 import { BILLING_INVOICE_ID } from "../../../tests/fixtures/pragmatic-seeds.ts";
-import { ANNOTATION_SCHEMA, TARGET_HTML } from "./shared.ts";
+import { ANNOTATION_KIND, TARGET_HTML } from "./shared.ts";
 
 export const INVOICE_ANNOTATION: AnnotationDocument = {
-  $schema: ANNOTATION_SCHEMA,
+  $kind: ANNOTATION_KIND,
   subject: BILLING_INVOICE_ID,
   targetLibraries: [...TARGET_HTML],
   views: {
