@@ -33,13 +33,11 @@ export { HtmlRoot } from "./fields/root.js";
 export {
   MoneyInput,
   MoneyDisplay,
-  moneyKitResolvers,
   isMoney,
   formatDisplay as formatMoneyDisplay,
   type MoneyValue,
 } from "./fields/money.js";
 export { resolveTel, type ResolvedTel } from "./fields/tel.js";
-export { copyText } from "./fields/copy.js";
 import {
   HtmlKitConfigProvider,
   identityFieldNameToLabel,

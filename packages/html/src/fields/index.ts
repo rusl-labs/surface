@@ -19,7 +19,6 @@ export { CopyInput, CopyDisplay, copyText } from "./copy.js";
 export {
   MoneyInput,
   MoneyDisplay,
-  moneyKitResolvers,
   MONEY_ID,
   isMoney,
   formatDisplay as formatMoneyDisplay,

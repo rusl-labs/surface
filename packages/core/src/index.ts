@@ -17,7 +17,6 @@ export {
   type ResolveEntryInput,
 } from "./helpers.js";
 export {
-  DEFAULT_SURFACE_CONTEXT,
   useSurface,
   useResolvedNode,
   type SurfaceContext,

@@ -33,7 +33,7 @@ export function Typeahead<T extends string>({
 }: {
   readonly items: readonly T[];
   readonly selected: T | undefined;
-  readonly disabled?: boolean;
+  readonly disabled?: boolean | undefined;
   readonly filter: (item: T, query: string) => boolean;
   readonly onPick: (next: T) => void;
   readonly triggerLabel: string;

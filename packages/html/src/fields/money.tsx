@@ -11,7 +11,6 @@
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import {
   useSurface,
-  type RegistryEntry,
   type Schema,
   type SurfaceProps,
   type SurfaceRenderer,
@@ -525,8 +524,3 @@ export const MoneyDisplay: SurfaceRenderer = function MoneyDisplay(
   );
 };
 
-/** Register against the money schema `$id` so it outranks structural `object`. */
-export const moneyKitResolvers: readonly RegistryEntry[] = [
-  { key: MONEY_ID, mode: "input", component: MoneyInput },
-  { key: MONEY_ID, mode: "display", component: MoneyDisplay },
-];
