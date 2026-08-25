@@ -1,4 +1,11 @@
 {
+  "compilerOptions": {
+    "paths": {
+      "@rusl-labs/surface": ["./packages/core/src/index.ts"],
+      "@rusl-labs/surface-html": ["./packages/html/src/index.tsx"],
+      "@rusl-labs/surface-ajv": ["./packages/ajv/src/index.ts"]
+    }
+  },
   "files": [],
   "references": [
     { "path": "./packages/core/tsconfig.build.json" },

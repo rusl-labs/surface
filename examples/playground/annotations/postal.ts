@@ -10,10 +10,10 @@ import {
   POSTAL_ADDRESS_ID,
   US_ADDRESS_ID,
 } from "../../../tests/fixtures/pragmatic-seeds.ts";
-import { ANNOTATION_SCHEMA, TARGET_HTML } from "./shared.ts";
+import { ANNOTATION_KIND, TARGET_HTML } from "./shared.ts";
 
 export const POSTAL_ANNOTATION: AnnotationDocument = {
-  $schema: ANNOTATION_SCHEMA,
+  $kind: ANNOTATION_KIND,
   subject: POSTAL_ADDRESS_ID,
   targetLibraries: [...TARGET_HTML],
   views: {
@@ -81,7 +81,7 @@ export const POSTAL_ANNOTATION: AnnotationDocument = {
 
 /** US variant — labeled Input form when postal.address allOf walks branches. */
 export const US_ADDRESS_ANNOTATION: AnnotationDocument = {
-  $schema: ANNOTATION_SCHEMA,
+  $kind: ANNOTATION_KIND,
   subject: US_ADDRESS_ID,
   targetLibraries: [...TARGET_HTML],
   views: {

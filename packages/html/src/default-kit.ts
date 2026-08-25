@@ -1,12 +1,12 @@
 /**
- * Vendored default HTML kit widget vocabulary.
+ * Default HTML kit widget vocabulary.
  * Schema: `packages/html/schemas/default-kit.schema.json`
- * (publish later under the surface package / Rusl account).
+ * Published as `@rusl-labs/surface-html/schemas/default-kit.schema.json`.
  */
 
 /** Document `$id` for the default kit vocabulary. */
 export const DEFAULT_KIT_ID =
-  "https://resources.rusl.com/resources/surface/schemas/default-kit";
+  "https://resources.rusl.com/resources/rusl/schemas/surface.default-kit";
 
 export const DEFAULT_KIT_INPUT = `${DEFAULT_KIT_ID}#/$defs/input`;
 export const DEFAULT_KIT_DATE = `${DEFAULT_KIT_ID}#/$defs/date`;

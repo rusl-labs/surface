@@ -9,10 +9,10 @@
  */
 import type { AnnotationDocument } from "@rusl-labs/surface";
 import { CONTACT_SOCIAL_HANDLE_ID } from "../../../tests/fixtures/pragmatic-seeds.ts";
-import { ANNOTATION_SCHEMA, TARGET_HTML } from "./shared.ts";
+import { ANNOTATION_KIND, TARGET_HTML } from "./shared.ts";
 
 export const SOCIAL_HANDLE_ANNOTATION: AnnotationDocument = {
-  $schema: ANNOTATION_SCHEMA,
+  $kind: ANNOTATION_KIND,
   subject: CONTACT_SOCIAL_HANDLE_ID,
   targetLibraries: [...TARGET_HTML],
   views: {

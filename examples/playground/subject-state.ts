@@ -40,14 +40,13 @@ import {
   US_ADDRESS_ANNOTATION,
 } from "./annotations/postal.ts";
 import { SOCIAL_HANDLE_ANNOTATION } from "./annotations/social-handle.ts";
-import { ANNOTATION_SCHEMA } from "./annotations/shared.ts";
+import { ANNOTATION_KIND } from "./annotations/shared.ts";
 import {
   CONTACT_DIRECTORY_ANNOTATION,
   CONTACT_DIRECTORY_ID,
   CONTACT_DIRECTORY_SAMPLE,
 } from "./contact-directory.ts";
 
-export { ANNOTATION_SCHEMA };
 export {
   CONTACT_ANNOTATION,
   CONTACT_DIRECTORY_ANNOTATION,
@@ -90,7 +89,7 @@ export function emptyAnnotation(
   label: string,
 ): AnnotationDocument {
   return {
-    $schema: ANNOTATION_SCHEMA,
+    $kind: ANNOTATION_KIND,
     subject,
     targetLibraries: ["@rusl-labs/surface-html"],
     views: {

@@ -36,7 +36,7 @@ const CONTACT_ANNOTATION: AnnotationDocument = {
             widget: {
               name: "email",
               $kind:
-                "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/email",
+                "https://resources.rusl.com/resources/rusl/schemas/surface.default-kit#/$defs/email",
             },
           },
         },

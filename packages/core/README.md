@@ -1,298 +1,196 @@
 # `@rusl-labs/surface`
 
-Give Surface a JSON Schema and some data. It renders a working form or display.
+The core runtime. `createSurfaceUi` returns the `Surface` component and the `kit` registry.
+
+You do not need to read this to get started. The [root README](https://github.com/rusl-labs/surface/blob/master/README.md) covers the setup. Read this when you need the API reference or want to understand how Surface resolves schemas and renderers.
+
+## `createSurfaceUi(options)`
+
+```ts
+function createSurfaceUi(options: {
+  schemaResolver: SchemaResolver;
+  validator: SurfaceValidator;
+  kit: SurfaceKit;
+  annotationResolver?: AnnotationResolver;
+}): { Surface: React.FC<SurfaceProps> }
+```
+
+| Option | What it does |
+| --- | --- |
+| `schemaResolver` | Loads JSON Schema documents by `$id`. Surface calls it whenever it encounters a `$ref` to an unknown document. |
+| `validator` | Validates data against the schema before `onSubmit`. Must implement `SurfaceValidator`. |
+| `kit` | Supplies the renderers. Must implement `SurfaceKit`. |
+| `annotationResolver` | Optional. Loads annotation documents by URI. |
+
+Call `createSurfaceUi` once at the top of your app. It returns a bound `Surface` component ready to mount anywhere:
 
 ```tsx
-import { useState } from "react";
-import {
-  createSurfaceUi,
-  InMemorySchemaFetchResolver,
-} from "@rusl-labs/surface";
-import { createAjvValidator } from "@rusl-labs/surface-ajv";
-import { createHtmlKit } from "@rusl-labs/surface-html";
-import "@rusl-labs/surface-html/surface.css";
-
-const contactId = "https://example.com/schemas/contact";
-
-const contactSchema = {
-  $id: contactId,
-  type: "object",
-  required: ["name", "email"],
-  properties: {
-    name: { type: "string" },
-    email: { type: "string", format: "email" },
-    notes: { type: "string" },
-  },
-};
-
 const { Surface } = createSurfaceUi({
-  schemaResolver: new InMemorySchemaFetchResolver({
-    [contactId]: contactSchema,
-  }),
+  schemaResolver: new InMemorySchemaFetchResolver({ [schema.$id]: schema }),
   validator: createAjvValidator(),
   kit: createHtmlKit(),
 });
 
-export function ContactEditor() {
-  const [data, setData] = useState({ name: "", email: "" });
+// Mount it anywhere
+<Surface id={schema.$id} data={data} onChange={setData} />
+```
 
-  return (
-    <Surface
-      id={contactId}
-      data={data}
-      onChange={setData}
-      onSubmit={({ data }) => console.log("saved", data)}
-    />
-  );
+## `Surface` props
+
+| Prop | Type | Required | What it does |
+| --- | --- | --- | --- |
+| `id` | `string` | Yes | Schema `$id` to render |
+| `data` | `unknown` | — | Controlled value |
+| `onChange` | `(next: unknown) => void` | — | Called when any field changes. Omit for an internal draft. |
+| `mode` | `"input" | "display"` | — | Default `"input"` |
+| `view` | `string` | — | Default `"default"`. Open string — use `"card"`, `"row"`, `"identity"`, or your own. |
+| `onSubmit` | `({ data }: { data: unknown }) => void` | — | Called after a successful validate-and-save |
+| `labels` | `boolean` | — | Inherited. `false` hides field chrome for this node and descendants. A child can override with `true`. |
+| `schema` / `document` / `documentUri` | — | — | Pass the schema document directly when you already have it |
+| `annotationUri` | `string` | — | URI of an annotation document for this mount |
+
+## Schema resolver
+
+Surface walks JSON Schema graphs. When it encounters a `$ref`, it asks the resolver for that document.
+
+### `InMemorySchemaFetchResolver`
+
+Seed it with documents keyed by `$id`. Unknown `$id` values are fetched over the network.
+
+```ts
+const resolver = new InMemorySchemaFetchResolver({
+  [PERSON_ID]: personSchema,
+  [ADDRESS_ID]: addressSchema,
+});
+```
+
+This works for `$ref` across documents and `#/$defs/…` fragments inside them.
+
+### Custom resolver
+
+Implement `SchemaResolver` to load schemas from your own store:
+
+```ts
+interface SchemaResolver {
+  resolve(uri: string): Promise<JsonSchemaDocument | undefined>;
 }
 ```
 
-That is a labeled form with Save / Reset, validation, and nested schema walk — no hand-built field tree.
+## Kit registry
 
----
+The kit picks a renderer for each schema node. It receives a `RendererRequest` with candidate keys and returns a React component — or falls through to the next entry.
 
-## What it is
+### `createRegistryKit(options)`
 
-Surface is a small React runtime for JSON Schema UIs.
-
-| Layer | Owns |
-| --- | --- |
-| **Schema** | Shape and validation |
-| **Annotation** (optional) | Presentation decisions — order, labels, views, widgets |
-| **Kit** | DOM and look — HTML kit today, your design system tomorrow |
-
-Core stays validator-agnostic. Pair it with `@rusl-labs/surface-ajv` and `@rusl-labs/surface-html` for the usual app path.
-
----
-
-## Install
-
-```bash
-npm install @rusl-labs/surface @rusl-labs/surface-html @rusl-labs/surface-ajv ajv ajv-formats react
-```
-
-`ajv` and `ajv-formats` are peers of the AJV adapter. You own those versions.
-
----
-
-## Get started
-
-### 1. Create a Surface
-
-```tsx
-const { Surface } = createSurfaceUi({
-  schemaResolver, // loads schemas by $id / URI
-  validator,      // required — createAjvValidator() or your own
-  kit: createHtmlKit(),
-});
-```
-
-### 2. Mount it
-
-```tsx
-{/* Edit */}
-<Surface id={schemaId} data={draft} onChange={setDraft} onSubmit={persist} />
-
-{/* Read */}
-<Surface id={schemaId} data={record} mode="display" />
-
-{/* Dense list row */}
-<Surface id={schemaId} data={record} mode="display" view="row" />
-```
-
-| Prop | Role |
-| --- | --- |
-| `id` | Schema `$id` (required) |
-| `data` / `onChange` | Controlled value. Omit `onChange` for an internal draft. |
-| `mode` | `"input"` (default) or `"display"` |
-| `view` | Annotation view name. Default `"default"`. |
-| `onSubmit` | After a successful Save validation only |
-
-Schemas can come from an in-memory map, `fetch`, or any `SchemaResolver`. Pass `schema` / `document` inline when you already have the document.
-
-### 3. Optional: annotate presentation
-
-Without an annotation, Surface walks the schema property order. Add a plain JSON annotation when you want labels, field order, sections, or named views (`card`, `row`, …).
-
-```tsx
-import {
-  createSurfaceUi,
-  InMemoryAnnotationResolver,
-  InMemorySchemaFetchResolver,
-} from "@rusl-labs/surface";
-
-const { Surface } = createSurfaceUi({
-  schemaResolver: new InMemorySchemaFetchResolver({ [contactId]: contactSchema }),
-  annotationResolver: new InMemoryAnnotationResolver({
-    [contactId]: {
-      subject: contactId,
-      views: {
-        default: {
-          label: "Contact",
-          fields: [
-            { name: "name", label: "Full name" },
-            { name: "email", label: "Email", widget: { name: "email" } },
-            { name: "notes", label: "Notes" },
-          ],
-        },
-        card: {
-          label: "",
-          fields: [
-            { name: "name" },
-            { name: "email", widget: { name: "email" } },
-          ],
-        },
-      },
-    },
-  }),
-  validator: createAjvValidator(),
-  kit: createHtmlKit(),
-});
-```
-
-Annotation model: [`docs/annotation.md`](../../docs/annotation.md).
-
----
-
-## Custom components
-
-Register a React component for a **schema key + mode + view**. Surface picks the first matching registry entry for the node’s candidate keys.
-
-```tsx
-import {
-  useSurface,
-  type SurfaceProps,
-  type SurfaceRenderer,
-} from "@rusl-labs/surface";
-import { createHtmlKit, FieldChrome, surfaceClass } from "@rusl-labs/surface-html";
-
-const ContactCard: SurfaceRenderer = function ContactCard({ data }: SurfaceProps) {
-  const row = data as { name?: string; email?: string } | undefined;
-  return (
-    <article className="contact-card">
-      <strong>{row?.name}</strong>
-      <span>{row?.email}</span>
-    </article>
-  );
-};
-
-const EmailInput: SurfaceRenderer = function EmailInput({ data }: SurfaceProps) {
-  const { dataApi } = useSurface();
-  const value = typeof data === "string" ? data : "";
-
-  return (
-    <FieldChrome>
-      <input
-        type="email"
-        className={surfaceClass.control}
-        value={value}
-        onInput={(e) => dataApi?.setData(e.currentTarget.value)}
-      />
-    </FieldChrome>
-  );
-};
-
-const kit = createHtmlKit({
-  resolvers: [
-    // Whole subject, display + card view only
-    {
-      key: contactId,
-      mode: "display",
-      view: "card",
-      component: ContactCard,
-    },
-    // Any email-shaped string in input mode (all views)
-    {
-      key: "format:email",
-      mode: "input",
-      component: EmailInput,
-    },
-  ],
-});
-
-const { Surface } = createSurfaceUi({
-  schemaResolver,
-  validator,
-  kit,
-});
-
-// Uses ContactCard
-<Surface id={contactId} data={person} mode="display" view="card" />
-
-// Uses EmailInput for the email field; default object form for the rest
-<Surface id={contactId} data={draft} onChange={setDraft} mode="input" />
-```
-
-### Match rules
-
-| You set | What matches |
-| --- | --- |
-| `key` | A **candidate key** for the node (`$id`, `widget:…`, `format:…`, `string`, …) |
-| `mode` | `"input"` / `"display"`. Omit = both. |
-| `view` | Annotation view name. Omit = all views. Non-default views fall back to a `view: "default"` entry when present. |
-
-`createHtmlKit({ resolvers })` appends your entries after structural defaults. **Last registration wins** for a given key.
-
-You can also register after construction:
+Build a kit from a list of resolver entries:
 
 ```ts
-kit.set(contactId, "display", "card", ContactCard);
-// same as
-kit.set({
-  key: contactId,
-  mode: "display",
-  view: "card",
-  component: ContactCard,
+import { createRegistryKit } from "@rusl-labs/surface";
+
+const kit = createRegistryKit({
+  fallback: () => null,
+  resolvers: [
+    { key: PERSON_ID, mode: "display", view: "card", component: PersonCard },
+  ],
+  Root: MyFormShell,
+  aliases: { "date-time": "datetime" },
 });
 ```
 
-### Candidate keys (most specific first)
+`createHtmlKit({ resolvers, aliases })` wraps this — your entries append after the HTML kit defaults.
+
+### Registry entry shape
+
+```ts
+type RegistryEntry =
+  | { key?: string; mode?: SurfaceMode; view?: SurfaceViewName;
+      component: SurfaceRenderer }
+  | { key?: string; mode?: SurfaceMode; view?: SurfaceViewName;
+      resolve: (request: RendererRequest) => SurfaceRenderer | null };
+```
+
+| Field | What it matches |
+| --- | --- |
+| `key` | A candidate key. Omit for a catch-all that runs before keyed lookup. |
+| `mode` | `"input"` or `"display"`. Omit for both. |
+| `view` | View name. Omit for all views. A non-default view falls back to a `view: "default"` entry. |
+| `component` | Always use this renderer. |
+| `resolve` | Return a renderer, or `null` to keep falling through. Use when the choice depends on app state. |
+
+Never set both `component` and `resolve`. Last registration wins when multiple entries match the same key.
+
+### `kit.set()` after init
+
+```ts
+kit.set(PERSON_ID, "display", "card", PersonCard);
+kit.set({ key: PERSON_ID, mode: "display", view: "card", component: PersonCard });
+```
+
+### `kit.Root`
+
+When set, the engine wraps only the root body's renderer as `children`. The HTML kit uses this for a form shell with Save and Reset buttons.
+
+### Candidate key order
+
+For each node, Surface builds this list (most specific first) and asks the kit for the first match:
 
 ```text
 schema $id
-  → widget.$kind → widget:<name> → <name>
-  → format:<name> → <name>
-  → const | enum
-  → type (string, object, …)
-  → combinators (oneOf, anyOf, allOf)
+  → subject-root coordinate (<uri> or <uri>#/$defs/<name>)
+  → widget.$kind
+  → widget:<name> → name
+  → format:<f> → f
+  → const | enum | type | combinators
 ```
 
-Examples:
+### Aliases
 
-| Situation | Register |
-| --- | --- |
-| One subject schema | full `$id` |
-| Annotation `widget: { name: "email" }` | `"email"` or `"widget:email"` |
-| `{ type: "string", format: "date-time" }` | `"format:date-time"` |
-| Every string input | `"string"` + `mode: "input"` |
+`createRegistryKit({ aliases })` adds one extra lookup hop. If a key `A` is not found, the kit retries with `aliases[A]` (one hop only). An explicit registration for the alias key wins over the alias target.
 
-`$id` outranks widgets and types. Claiming a subject by `$id` is intentional — annotations cannot steal that node.
+## `useSurface()`
 
-For `resolve` (pick a component from app state, or return `null` to keep falling through) and Root form shells, see **[Building kits](../../docs/guides/building-kits.md)**.
+Renderers call this hook for context:
 
----
-
-## Packages
-
-| Package | Role |
-| --- | --- |
-| `@rusl-labs/surface` | Core runtime |
-| [`@rusl-labs/surface-html`](../html/README.md) | HTML kit, widgets, opt-in `surface.css` |
-| [`@rusl-labs/surface-ajv`](../ajv/README.md) | Recommended AJV validator |
-
----
-
-## Docs
-
-| Doc | Role |
-| --- | --- |
-| [Building kits](../../docs/guides/building-kits.md) | Registry, candidate keys, custom renderers |
-| [annotation.md](../../docs/annotation.md) | Annotation model |
-| [implementation.md](../../docs/implementation.md) | What ships today |
-| [SCHEMA.md](../../SCHEMA.md) | Schema-driven policy |
-
-Try the playground from the repo root:
-
-```bash
-bun run playground
+```ts
+const { dataApi, validity, helpers, id, mode, view, schema, labels } = useSurface();
 ```
+
+| Returned | What it does |
+| --- | --- |
+| `dataApi.setData(next)` | Replace this node's value |
+| `dataApi.setChild(key, next)` | Write one property or array index |
+| `validity` | Issues projected to this node's path. Use `issuesAt(validity.issues, [])` for leaf-level issues. |
+| `helpers.fields()` | Yield fields in annotation order, with sections |
+| `helpers.layout()` | `"props"` (default) or `"stack"` |
+| `helpers.direction()` | `"vertical"` (default) or `"horizontal"` |
+| `labels` | Current `labels` value (inherited) |
+
+### Data channel rules
+
+- Commit through `setData` and `setChild`. Do not keep a parallel local source of truth.
+- Wire formats belong on the channel: money in minor units, dates as RFC 3339.
+- Control value can differ from the wire format. Convert at the boundary.
+
+## `SurfaceValidator`
+
+```ts
+interface SurfaceValidator {
+  validate(request: {
+    id: string;
+    schema: JsonSchemaDocument;
+    data: unknown;
+    schemaResolver: SchemaResolver;
+  }): Promise<{ valid: boolean; issues: SurfaceIssue[] }>;
+}
+```
+
+The recommended implementation is `@rusl-labs/surface-ajv`.
+
+## Related
+
+| Doc | Why |
+| --- | --- |
+| [Building kits](https://github.com/rusl-labs/surface/blob/master/docs/guides/building-kits.md) | Full guide: registry, aliases, candidate keys, writing renderers, Root |
+| [Annotations](https://github.com/rusl-labs/surface/blob/master/docs/annotation.md) | Annotation model |
+| [`@rusl-labs/surface-html`](https://github.com/rusl-labs/surface/blob/master/packages/html/README.md) | HTML kit config and widgets |
+| [`@rusl-labs/surface-ajv`](https://github.com/rusl-labs/surface/blob/master/packages/ajv/README.md) | AJV validator adapter |

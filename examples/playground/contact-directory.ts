@@ -8,7 +8,7 @@ import {
   CONTACT_CARD_ID,
   CONTACT_CARD_SAMPLE,
 } from "../../tests/fixtures/pragmatic-seeds.ts";
-import { ANNOTATION_SCHEMA, TARGET_HTML } from "./annotations/shared.ts";
+import { ANNOTATION_KIND, TARGET_HTML } from "./annotations/shared.ts";
 
 export const CONTACT_DIRECTORY_ID =
   "https://example.test/schemas/contact.directory";
@@ -59,7 +59,7 @@ export const CONTACT_DIRECTORY_SAMPLE = {
 };
 
 export const CONTACT_DIRECTORY_ANNOTATION: AnnotationDocument = {
-  $schema: ANNOTATION_SCHEMA,
+  $kind: ANNOTATION_KIND,
   subject: CONTACT_DIRECTORY_ID,
   targetLibraries: [...TARGET_HTML],
   views: {

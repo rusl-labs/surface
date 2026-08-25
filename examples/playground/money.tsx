@@ -1,13 +1,11 @@
 /**
  * Playground re-export — money UI lives in `@rusl-labs/surface-html`.
- * `createHtmlKit()` registers MONEY `$id` by default; `moneyKitResolvers`
- * remains for hosts that still pass it explicitly.
+ * `createHtmlKit()` registers MONEY `$id` by default.
  */
 export {
   MONEY_ID,
   MoneyDisplay,
   MoneyInput,
-  moneyKitResolvers,
   type MoneyValue,
 } from "@rusl-labs/surface-html";
 

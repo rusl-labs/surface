@@ -39,8 +39,8 @@ export function TelCountryField({
 }: {
   readonly country: CountryCode | undefined;
   readonly countries: readonly CountryCode[];
-  readonly locale?: string;
-  readonly disabled?: boolean;
+  readonly locale?: string | undefined;
+  readonly disabled?: boolean | undefined;
   readonly onPick: (next: CountryCode) => void;
 }): ReactElement {
   const filter = useCallback(

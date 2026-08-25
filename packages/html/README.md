@@ -1,129 +1,172 @@
 # `@rusl-labs/surface-html`
 
-HTML kit for `@rusl-labs/surface`.
+The HTML kit for Surface. A kit is a collection of React components that Surface uses to render each part of your schema. This kit gives you plain HTML — inputs, selects, checkboxes — with opt-in CSS.
 
-**Kit authoring** (candidate keys, `$id` / `format:` / `widget:` overrides,
-helpers, Root): see **[Building kits](../../docs/guides/building-kits.md)**.
+You do not need to read this to get started. The [root README](https://github.com/rusl-labs/surface/blob/master/README.md) covers the basic setup. Read this when you need to configure the kit or understand what renderers and widgets ship by default.
 
-**Look and widget contract** (classes, errors, adapter vs presentational
-widget, catalog, table): **[DESIGN.md](./DESIGN.md)**.
+## Quick config
 
 ```tsx
-import { createSurfaceUi, InMemorySchemaFetchResolver } from "@rusl-labs/surface";
-import { createHtmlKit } from "@rusl-labs/surface-html";
-// Optional default look (flat form chrome on `.surface-*` classes):
-import "@rusl-labs/surface-html/surface.css";
-
 import { createHtmlKit, humanizeFieldName } from "@rusl-labs/surface-html";
 
-const { Surface } = createSurfaceUi({
-  schemaResolver: new InMemorySchemaFetchResolver(),
-  kit: createHtmlKit({
-    // Bare property names → labels (`countryCode` → `Country Code`).
-    // Annotation labels are never rewritten. Default is identity.
-    fieldNameToLabel: humanizeFieldName,
-    locale: "en-AU",
-    money: { currency: "AUD" },
-    tel: { defaultCountry: "AU" },
-    date: { dateStyle: "medium", timeStyle: "short" },
-    // resolvers: [{ key: "format:date-time", mode: "input", component: DateTimeInput }],
-  }),
+const kit = createHtmlKit({
+  locale: "en-AU",
+  fieldNameToLabel: humanizeFieldName,
+  money: { currency: "AUD" },
+  tel: { defaultCountry: "AU" },
+  date: { dateStyle: "medium", timeStyle: "short" },
+  form: { saveLabel: "Save", resetLabel: "Reset" },
 });
 ```
 
-### Default stylesheet
+Pass the kit to `createSurfaceUi`:
 
-`@rusl-labs/surface-html/surface.css` is **opt-in**. Core kit ships unstyled
-class names; import the CSS for a usable baseline. Theme with variables:
+```tsx
+const { Surface } = createSurfaceUi({
+  schemaResolver,
+  validator: createAjvValidator(),
+  kit,
+});
+```
+
+## Configuration options
+
+| Option | Type | What it does |
+| --- | --- | --- |
+| `locale` | `string` | BCP 47 locale for money, numbers, and dates. Default: runtime locale. |
+| `fieldNameToLabel` | `(name: string) => string` | Format a bare property name as a label. Annotation and schema titles are not passed through. Default: identity. |
+| `money` | `{ currency, currencies?, locked?, currencyDisplay? }` | Default currency. Schema `const` / `enum` on a `currency` field overrides. |
+| `tel` | `{ defaultCountry, countries?, showCountry? }` | Phone input defaults. A field-level `defaultCountry` overrides the kit default. |
+| `date` | `{ dateStyle?, timeStyle? }` | Display formatting. Input still uses native date controls. |
+| `form` | `{ saveLabel?, resetLabel?, enabled? }` | Root Save / Reset button labels. Default enabled in input mode. |
+| `aliases` | `Record<string, string>` | Extra one-hop lookup keys. Host entries merge over built-in aliases. |
+| `resolvers` | `RegistryEntry[]` | Extra registry entries, appended after built-in defaults. |
+
+## Register your own renderers
+
+```tsx
+const kit = createHtmlKit({
+  resolvers: [
+    // By schema $id — your component for the whole type
+    { key: PERSON_ID, mode: "display", view: "card", component: PersonCard },
+    // By format — your date picker for all date-time fields
+    { key: "format:date-time", mode: "input", component: MyDatePicker },
+  ],
+});
+```
+
+Your entries append after the built-in defaults. Last registration for a key wins. For full registry docs: [Building kits](https://github.com/rusl-labs/surface/blob/master/docs/guides/building-kits.md).
+
+## Built-in renderers
+
+### Structural types
+
+The kit registers renderers for every JSON Schema type:
+
+| Key | Mode | What it renders |
+| --- | --- | --- |
+| `string` | input / display | Text input or text display |
+| `number` / `integer` | input / display | Number input |
+| `boolean` | input / display | Checkbox |
+| `const` | input / display | Read-only fixed value |
+| `enum` | input / display | `<select>` (before `string` when both apply) |
+| `object` | input / display | `helpers.fields()` layout. Input has Add/Remove for optional properties. |
+| `array` | input / display | List with add/remove |
+| `allOf` | input / display | Branches over the same data |
+| `oneOf` / `anyOf` | input / display | Variant select (input) or matched branch (display) |
+| fallback | — | Renders nothing |
+
+### Widgets (short names)
+
+Each is registered once by short name. An alias adds one extra lookup hop to the same renderer.
+
+| Key | Input | Display |
+| --- | --- | --- |
+| `email` | Email input | `mailto:` link |
+| `tel` | National draft, E.164 on blur | Locale `tel:` link |
+| `uri` | URL input | Anchor link |
+| `datetime` | `datetime-local` ↔ RFC 3339 | Formatted date-time |
+| `date` | Native date input | Formatted date |
+| `media` | File input | Image / video / audio |
+| `link` | URL input | Anchor |
+| `copy` | Read-only value | Value + clipboard button |
+| `input` | Typed string control | Text display |
+| `table` | — | Display-only object-array table. Sort is view-only. Columns: `field`, `label`, `sortable`, `align`, `fontWeight`. |
+
+### `$id` registrations
+
+These widgets are registered by schema `$id` — no annotation needed:
+
+| `$id` | Constant | What it renders |
+| --- | --- | --- |
+| Money | `MONEY_ID` | Amount + currency selector (`currency.js`) |
+| Phone | `PHONE_ID` | National draft + E.164 output (`libphonenumber-js`) |
+
+`PHONE_ID` is a map key only. The kit does not vendor the phone schema. `MONEY_ID` is registered directly on the money schema `$id`.
+
+## Built-in aliases
+
+`createHtmlKit({ aliases })` merges `{ ...HTML_KIT_ALIASES, ...user }`. Host wins.
+
+| You write | Resolves to |
+| --- | --- |
+| `datetime` / `date-time` | `datetime` |
+| `email` / `idn-email` | `email` |
+| `uri` / `uri-reference` / `iri` / `iri-reference` | `uri` |
+| widget `$kind` URIs | the short name |
+| `PHONE_ID` | `tel` |
+
+## Root shell
+
+The HTML kit sets `kit.Root`. In input mode, the root body is wrapped in a `<div class="surface-form" role="group">` with Reset and Save buttons — not a native `<form>` submit.
+
+On Save, the kit deep-applies schema `const` (forced) and `default` (when missing), then calls `validator.validate()`. Only a valid result calls Surface `onSubmit({ data })`.
+
+Configure the buttons:
+
+```ts
+createHtmlKit({ form: { saveLabel: "Save invoice", resetLabel: "Discard" } });
+```
+
+## CSS
+
+`@rusl-labs/surface-html/surface.css` is opt-in. Class names ship unstyled. Import the CSS for a baseline. Theme with CSS custom properties:
 
 ```css
 :root {
   --surface-accent: #265fd1;
   --surface-field-bg: #f8fafc;
   --surface-border: #d7dee9;
-  --surface-field-gap: 1rem; /* space between object fields / display rows */
+  --surface-field-gap: 1rem;
 }
 ```
 
-`createHtmlKit()` registers each structural key **per mode** (`input` / `display`):
+### Stable class names
 
-- `string` → labeled text input / display text
-- `enum` → native `<select>` / display text (before `string` when both apply)
-- `number` / `integer` → number input / display text
-- `boolean` → checkbox (`value="true"`) / `true`/`false` text
-- `const` → read-only labeled input / text (display)
-- `object` → `helpers.fields()` walk; **input** has optional Add/Remove presence; **display** is read-only
-- `array` → **input** seeds `minItems`, Add/Remove; **display** is a `<ul>` of items
-- `widget:table` → display-only table of object arrays (sortable columns)
-- `allOf` → each branch is a child Surface over the same data (both modes)
-- `oneOf` / `anyOf` → variant select (input) or matched branch (display)
-- fallback → render nothing
-
-Field chrome (`label` / `description`) comes from `useSurface().helpers`. Annotate a view with `label` + `description` for a form header; use section/heading/template entries to compose layout without custom components.
-
-### Root chrome (Save / Reset)
-
-The HTML kit sets **`kit.Root`**: the engine wraps the **root** body's renderer
-as `children` when `isRoot`. In **input** mode that shell is
-`<div class="surface-form">` with **button** Reset / Save — not a native HTML
-`<form>` (no document submit / navigation). Works for **any** root schema
-(object, allOf, oneOf, custom `$id`, …), not only `type: object`.
-
-Save validates the data channel via
-`validator.validate({ id, schema, data, schemaResolver })`.
-Only when valid does it call Surface `onSubmit({ data })`.
-
-```ts
-const { Surface } = createSurfaceUi({
-  schemaResolver,
-  validator,
-  kit: createHtmlKit({
-    form: { saveLabel: "Save invoice", resetLabel: "Discard" },
-  }),
-});
-
-<Surface
-  id={invoiceId}
-  data={draft}
-  onChange={setDraft}
-  onSubmit={({ data }) => persist(data)}
-/>
-```
-
-### CSS hooks
-
-Every chrome node carries a stable `surface-…` class (exported as `surfaceClass`):
-
-```css
-.surface-object { gap: 1rem; }
-.surface-section { border-color: #ccc; }
-.surface-control { font: inherit; }
-.surface-template { font-style: italic; }
-```
+Chrome nodes carry these classes (exported as `surfaceClass`):
 
 | Class | Where |
 | --- | --- |
-| `surface-object` / `surface-object-body` | Object body + property stack |
-| `surface-title` | View / subject header |
-| `surface-description` | Description under title, section, or field |
-| `surface-slot` | Object property mount (layout only — not field chrome) |
-| `surface-group` / `surface-group-header` | Optional structured property shell (Add/Remove) |
-| `surface-field` | Leaf field chrome (label + control) |
-| `surface-label` | Label text |
-| `surface-control` | Inputs / selects |
+| `surface-object` / `surface-object-body` | Object body and property stack |
+| `surface-field` / `surface-label` / `surface-control` | Leaf field chrome |
 | `surface-value` | Display-mode value |
-| `surface-section` / `surface-section-label` / `surface-section-body` | Annotation section |
-| `surface-heading` | Flat heading |
-| `surface-template` | Template prose |
-| `surface-array` / `surface-array-list` / `surface-array-item` | Arrays |
-| `surface-button` | Add/remove |
-| `surface-hidden` | Hidden submitting inputs |
-| `surface-checkbox` | Boolean row |
-| `surface-union` / `surface-select` | oneOf/anyOf |
-| `surface-all-of` | allOf stack |
 | `surface-form` / `surface-form-actions` / `surface-button-primary` | Root form shell |
-| `surface-form-errors` | Form-level issues (path `[]`) after failed Save |
-| `surface-invalid` / `surface-error` | Field invalid state + message (`aria-invalid` / `aria-describedby`) |
+| `surface-form-errors` | Form-level issues after failed Save |
+| `surface-invalid` / `surface-error` | Field invalid state and message |
 
-Chrome classes are unstyled by default: the host paints look. Prefer styling
-`.surface-field` (controls) and avoid boxing `.surface-slot` or nesting focus rings.
+### Layout attributes
+
+The kit stamps `data-surface-layout` and `data-surface-direction` on object bodies, plus classes `surface-layout-props` / `surface-layout-stack` and `surface-direction-vertical` / `surface-direction-horizontal`.
+
+### `<Surface labels={false} />`
+
+`labels` inherits. `false` hides field chrome on that node and descendants. A child can set `labels: true` to override.
+
+## Related
+
+| Doc | Why |
+| --- | --- |
+| [Building kits](https://github.com/rusl-labs/surface/blob/master/docs/guides/building-kits.md) | Full kit authoring guide |
+| [DESIGN.md](./DESIGN.md) | HTML kit look, class list, widget contract |
+| [`@rusl-labs/surface`](https://github.com/rusl-labs/surface/blob/master/packages/core/README.md) | Core API reference |
+| [Annotations](https://github.com/rusl-labs/surface/blob/master/docs/annotation.md) | Annotation model |

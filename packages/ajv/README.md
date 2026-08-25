@@ -1,18 +1,14 @@
 # `@rusl-labs/surface-ajv`
 
-Recommended [`SurfaceValidator`](https://github.com/rusl-labs/surface) adapter
-built on [AJV](https://ajv.js.org/) (JSON Schema draft 2020-12).
-
-Core stays validator-agnostic. Most apps install this package so they never hand-roll
-AJV wiring.
+AJV adapter for Surface’s `SurfaceValidator`. Core stays validator-agnostic. This package is the recommended instance validator.
 
 ## Install
 
 ```bash
-npm install @rusl-labs/surface @rusl-labs/surface-ajv ajv ajv-formats
+npm install @rusl-labs/surface @rusl-labs/surface-html @rusl-labs/surface-ajv ajv ajv-formats react
 ```
 
-`ajv` and `ajv-formats` are **peer** dependencies — you own the versions.
+`ajv` and `ajv-formats` are peer dependencies. You own those versions.
 
 ## Usage
 
@@ -21,11 +17,18 @@ import { createSurfaceUi, InMemorySchemaFetchResolver } from "@rusl-labs/surface
 import { createAjvValidator } from "@rusl-labs/surface-ajv";
 import { createHtmlKit } from "@rusl-labs/surface-html";
 
-const schemaResolver = new InMemorySchemaFetchResolver({ /* seeds */ });
-const validator = createAjvValidator({
-  // optional offline seeds; everything else loads via ValidateRequest.schemaResolver
-  schemas: [],
+const contactId = "https://example.com/schemas/contact";
+const contactSchema = {
+  $id: contactId,
+  type: "object",
+  properties: { name: { type: "string" } },
+};
+
+const schemaResolver = new InMemorySchemaFetchResolver({
+  [contactId]: contactSchema,
 });
+
+const validator = createAjvValidator();
 
 const { Surface } = createSurfaceUi({
   schemaResolver,
@@ -34,14 +37,10 @@ const { Surface } = createSurfaceUi({
 });
 ```
 
-### Behaviour
+`createAjvValidator({ schemas?, discriminator? })` builds one validator. Each `validate` call compiles against the request schema.
 
-- **`ValidateRequest.schemaResolver`** — absolute `$ref`s load on demand
-  (`compileAsync` + `loadSchema`), same path as the UI.
-- **`discriminator: true`** — OpenAPI-style `discriminator` next to `oneOf`
-  (e.g. Rusl `postal.address` `$kind`) so only the matching arm contributes
-  field errors.
-- **`allErrors: true`**, `strict: false`, `ajv-formats` enabled.
+Absolute `$ref`s load through the same `request.schemaResolver` that Surface uses for UI (`compileAsync` + `loadSchema`). Pass `schemas` when you want known documents registered up front.
 
-Core never hard-codes AJV. This package is the supported default for apps that
-want JSON Schema instance validation without plumbing.
+`discriminator` defaults to `true` (OpenAPI-style `discriminator` next to `oneOf`). Set `discriminator: false` to turn it off.
+
+The AJV instance uses `allErrors: true`, `strict: false`, and `ajv-formats`.

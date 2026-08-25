@@ -35,8 +35,8 @@ export function MoneyCurrencyField({
 }: {
   readonly code: string;
   readonly codes: readonly string[];
-  readonly locale?: string;
-  readonly disabled?: boolean;
+  readonly locale?: string | undefined;
+  readonly disabled?: boolean | undefined;
   readonly onPick: (next: string) => void;
 }): ReactElement {
   const filter = useCallback(

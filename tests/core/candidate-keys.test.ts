@@ -15,7 +15,7 @@ describe("candidateKeys", () => {
 
   test("puts widget.$kind before widget name", () => {
     const kind =
-      "https://resources.rusl.com/resources/surface/schemas/default-kit#/$defs/media";
+      "https://resources.rusl.com/resources/rusl/schemas/surface.default-kit#/$defs/media";
     expect(
       candidateKeys(
         { type: "array" },
