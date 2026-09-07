@@ -41,7 +41,7 @@ export interface AnnotationEntry {
 }
 
 /**
- * Presentation for one subject, per `annotation-format.schema.json`.
+ * Presentation for one subject, per rusl/schemas/surface.annotation.
  * Views and defs stay opaque here; the field helpers consume them.
  */
 export interface AnnotationDocument {

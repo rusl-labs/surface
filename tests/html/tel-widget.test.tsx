@@ -11,7 +11,7 @@ import {
 } from "../../packages/core/src/index.ts";
 import { createHtmlKit, PHONE_ID } from "../../packages/html/src/index.tsx";
 import { resolveTel } from "../../packages/html/src/fields/tel.tsx";
-import contactScalars from "../../schemas/pragmatic/contact.scalars.schema.json" with {
+import contactScalars from "../fixtures/pragmatic/contact.scalars.schema.json" with {
   type: "json",
 };
 import { CONTACT_SCALARS_ID } from "../fixtures/pragmatic-seeds.ts";

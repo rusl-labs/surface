@@ -19,10 +19,10 @@ Local implementation state and behavior-bearing TypeScript interfaces do not nee
 | Installed external schemas | `schemas/` — committed output of `rusl install`; do not edit by hand |
 | What ships | `docs/implementation.md` |
 | Annotation model | `docs/annotation.md` + runtime (`packages/core`) |
-| Annotation envelope | `docs/annotation-format.schema.json` — document / view / field shell |
+| Annotation envelope | [rusl/schemas/surface.annotation](https://rusl.com/rusl/schemas/surface.annotation) — published; local pin `schemas/rusl/surface.annotation.schema.json` |
 | Kit authoring | `docs/guides/building-kits.md` + `packages/html` |
 | Default kit look / widget contract | `packages/html/DESIGN.md` |
-| Default kit `widget` kinds | `packages/html/schemas/default-kit.schema.json` — types `widget` when `$kind` points here |
+| Default kit `widget` kinds | [rusl/schemas/surface.default-kit](https://rusl.com/rusl/schemas/surface.default-kit) — published; local pin `schemas/rusl/surface.default-kit.schema.json` |
 | TypeScript behavior | `packages/*/src` — never a second independent data-shape authority |
 
 Schemas under `tests/fixtures/` and `$id` values under `example.test` are test inputs, not shared definitions. Application-supplied subject schemas remain owned by their applications; Surface consumes them without claiming their shape or validator.
@@ -47,10 +47,10 @@ Schemas under `tests/fixtures/` and `$id` values under `example.test` are test i
 3. Review and commit `rusl.lock` and the resulting `schemas/` changes together.
 4. Run the consumers and tests that exercise the changed definition.
 
-### Changing the Surface annotation format
+### Changing the Surface annotation format or default-kit vocabulary
 
-1. Read `docs/annotation.md` and the format schema. Change only with concrete implementation evidence.
-2. Changing `docs/annotation-format.schema.json` is a contract change: failing test first, then runtime and docs.
+1. Read `docs/annotation.md` and the installed schema. Change only with concrete implementation evidence.
+2. These shapes are published Rusl schemas. Propose a new version on Rusl, accept it, then bump the pin in `rusl.bundle.toml` and run `rusl install`. Do not edit the installed files or keep a parallel local draft as authority.
 3. Verify with `bun run check`.
 
 AJV may validate annotation documents in tests and tooling. Core remains validator-agnostic.

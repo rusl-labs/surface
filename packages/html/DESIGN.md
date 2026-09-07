@@ -10,7 +10,7 @@ native elements and small libraries (`libphonenumber-js`, `currency.js`, `Intl`)
 
 | Concern | File |
 | --- | --- |
-| Widget vocabulary (`$kind` defs) | `schemas/default-kit.schema.json` (schema steward) |
+| Widget vocabulary (`$kind` defs) | [rusl/schemas/surface.default-kit](https://rusl.com/rusl/schemas/surface.default-kit) |
 | Class names | `src/classes.ts` (`surfaceClass`) — designer |
 | Default look / tokens | `surface.css` (opt-in) — designer |
 | How a kit wins a node | `docs/guides/building-kits.md` |
@@ -102,7 +102,7 @@ JSON Schema has no `datetime` type and no `tel` format. Spec format is
 `contact.scalars#/$defs/phone` (E.164). `widget:tel` skins a plain string.
 
 Kit `widget` params (`columns`, `align`, `defaultCountry`, …) are defined in
-`schemas/default-kit.schema.json`, not the annotation envelope.
+[rusl/schemas/surface.default-kit](https://rusl.com/rusl/schemas/surface.default-kit), not the annotation envelope.
 
 ---
 
@@ -343,13 +343,14 @@ grid framework.
 
 ## Adding a widget (checklist)
 
-1. If the kind needs params, add a `$defs` entry in
-   `schemas/default-kit.schema.json` (schema steward must accept this).
+1. If the kind needs params, add a `$defs` entry on
+   [rusl/schemas/surface.default-kit](https://rusl.com/rusl/schemas/surface.default-kit)
+   (propose and accept a new version, then bump the pin).
 2. Register `key` + `mode` in `createHtmlKit` (`$kind` URI and short name).
 3. Adapter uses FieldChrome + channel errors; widget is presentational.
 4. Land `surfaceClass` keys and `surface.css` with the widget. Keep the
    look on the shared sheet.
 5. Tests: unit the library helper; mount test input + display; annotation
    `widget.name` wins; `format:` wins when the name matches a spec format.
-6. Do not change `docs/annotation-format.schema.json` for a new kit kind.
-   The envelope is already open.
+6. Do not change [surface.annotation](https://rusl.com/rusl/schemas/surface.annotation)
+   for a new kit kind. The envelope is already open.

@@ -32,8 +32,8 @@ too). Input keeps an internal draft until **Save**: kit validates, then
 leaves Seed payload unchanged. Display **Data (JSON)** only commits after
 parse + schema validation.
 
-Schemas: `rusl.bundle.toml` → `schemas/pragmatic/`. Seeds:
-`tests/fixtures/pragmatic-seeds.ts`. Catalog helpers:
+Subject schemas: `tests/fixtures/pragmatic/` (local copies, not Rusl-installed).
+Seeds: `tests/fixtures/pragmatic-seeds.ts`. Catalog helpers:
 `examples/playground/catalog.ts`.
 
 ## Run
