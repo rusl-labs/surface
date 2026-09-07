@@ -161,7 +161,7 @@ A widget entry tells the kit which renderer to use for a field:
 
 Without `$kind`, the `options` are a grab-bag for the named renderer. Core does not validate `$kind` — each kit owns its widget schema.
 
-For the HTML kit's widget vocabulary, see `@rusl-labs/surface-html/schemas/default-kit.schema.json`.
+For the HTML kit's widget vocabulary, see [rusl/schemas/surface.default-kit](https://rusl.com/rusl/schemas/surface.default-kit).
 
 ## How the kit picks a renderer
 
@@ -184,4 +184,4 @@ schema $id
 
 ## Envelope schema
 
-The annotation format contract: [`rusl/schemas/surface.annotation@0.1.0`](../schemas/rusl/surface.annotation.schema.json) ([readable copy](./annotation-format.schema.json)).
+The annotation format contract: [rusl/schemas/surface.annotation](https://rusl.com/rusl/schemas/surface.annotation).

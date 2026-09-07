@@ -26,7 +26,7 @@ What the Surface runtime **actually does** today.
 - Conventional view names: `default`, `identity`, `row`, `card` (open strings)
 - **Layout** `props` \| `stack` and **direction** `vertical` \| `horizontal` on views and sections
 - Open **widget** object (`name`, optional `$kind` / `options`, additional properties); whole object passed through
-- Format contract: [`schemas/rusl/surface.annotation.schema.json`](../schemas/rusl/surface.annotation.schema.json)
+- Format contract: [rusl/schemas/surface.annotation](https://rusl.com/rusl/schemas/surface.annotation)
 - Model summary: [`annotation.md`](./annotation.md)
 - DX checklist: [`guides/annotation-dx.md`](./guides/annotation-dx.md)
 
@@ -40,7 +40,7 @@ What the Surface runtime **actually does** today.
 - **`createHtmlKit({ locale, money, tel, date, aliases, resolvers })`**
 - **`Surface` `labels`:** inherited; `false` hides field chrome
 - **Table:** display-only; sort is view-only; columns `field` / `label` / `sortable` / `align` / `fontWeight`
-- Vocabulary schema: `schemas/rusl/surface.default-kit.schema.json` (npm copy: `@rusl-labs/surface-html/schemas/default-kit.schema.json`)
+- Vocabulary schema: [rusl/schemas/surface.default-kit](https://rusl.com/rusl/schemas/surface.default-kit)
 - `HtmlRoot`: Reset/Save **buttons** (not native form submit); before validate, deep-apply schema `const` (forced) + `default` (when missing); then validate → `onSubmit`; optional structured presence (Add/Remove) input-only
 - date-time: registered as `datetime`; `date-time` aliases in; `datetime-local` ↔ RFC 3339
 - tel: messy national draft, E.164 on blur; display is a locale `tel:` link
@@ -81,5 +81,5 @@ bun run playground   # PORT=3001 optional
 | Doc | Role |
 | --- | --- |
 | [annotation.md](./annotation.md) | Annotation model |
-| [surface.annotation](../schemas/rusl/surface.annotation.schema.json) | Format contract |
+| [surface.annotation](https://rusl.com/rusl/schemas/surface.annotation) | Format contract |
 | [guides/building-kits.md](./guides/building-kits.md) | Kit guide |

@@ -19,10 +19,10 @@ Local implementation state and behavior-bearing TypeScript interfaces do not nee
 | Installed external schemas | `schemas/` — committed output of `rusl install`; do not edit by hand |
 | What ships | `docs/implementation.md` |
 | Annotation model | `docs/annotation.md` + runtime (`packages/core`) |
-| Annotation envelope | `schemas/rusl/surface.annotation.schema.json` — installed `rusl/schemas/surface.annotation@0.1.0` |
+| Annotation envelope | [rusl/schemas/surface.annotation](https://rusl.com/rusl/schemas/surface.annotation) — published; local pin `schemas/rusl/surface.annotation.schema.json` |
 | Kit authoring | `docs/guides/building-kits.md` + `packages/html` |
 | Default kit look / widget contract | `packages/html/DESIGN.md` |
-| Default kit `widget` kinds | `schemas/rusl/surface.default-kit.schema.json` — installed `rusl/schemas/surface.default-kit@0.1.0`; `@rusl-labs/surface-html` ships a copy at `packages/html/schemas/default-kit.schema.json` |
+| Default kit `widget` kinds | [rusl/schemas/surface.default-kit](https://rusl.com/rusl/schemas/surface.default-kit) — published; local pin `schemas/rusl/surface.default-kit.schema.json` |
 | TypeScript behavior | `packages/*/src` — never a second independent data-shape authority |
 
 Schemas under `tests/fixtures/` and `$id` values under `example.test` are test inputs, not shared definitions. Application-supplied subject schemas remain owned by their applications; Surface consumes them without claiming their shape or validator.

@@ -1,7 +1,6 @@
 /**
  * Default HTML kit widget vocabulary.
- * Schema: `packages/html/schemas/default-kit.schema.json`
- * Published as `@rusl-labs/surface-html/schemas/default-kit.schema.json`.
+ * Published: https://rusl.com/rusl/schemas/surface.default-kit
  */
 
 /** Document `$id` for the default kit vocabulary. */
