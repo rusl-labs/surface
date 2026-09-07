@@ -25,7 +25,7 @@ import {
 const here = dirname(fileURLToPath(import.meta.url));
 const formatSchema = JSON.parse(
   readFileSync(
-    join(here, "../../docs/annotation-format.schema.json"),
+    join(here, "../../schemas/rusl/surface.annotation.schema.json"),
     "utf8",
   ),
 ) as object;
@@ -34,7 +34,7 @@ const ajv = new Ajv2020({ allErrors: true, strict: false });
 const validateAnnotation = ajv.compile(formatSchema);
 
 describe("helpers.fields", () => {
-  test("walkthrough fixture validates against annotation-format.schema.json", () => {
+  test("walkthrough fixture validates against surface.annotation", () => {
     expect(validateAnnotation(WALKTHROUGH_ANNOTATION)).toBe(true);
   });
 

@@ -1,56 +1,56 @@
 /**
- * Vendored pragmatic graph seeds for playground + AJV dogfood tests.
- * Schemas come from `rusl install` (`schemas/pragmatic/`); do not hand-edit them.
+ * Local pragmatic subject seeds for playground + AJV dogfood tests.
+ * Not Rusl-installed; Surface's bundle only pins the two Surface contracts.
  */
 import type { Schema } from "../../packages/core/src/index.ts";
-import billingInvoice from "../../schemas/pragmatic/billing.invoice.schema.json" with {
+import billingInvoice from "./pragmatic/billing.invoice.schema.json" with {
   type: "json",
 };
-import billingPayment from "../../schemas/pragmatic/billing.payment.schema.json" with {
+import billingPayment from "./pragmatic/billing.payment.schema.json" with {
   type: "json",
 };
-import billingRefund from "../../schemas/pragmatic/billing.refund.schema.json" with {
+import billingRefund from "./pragmatic/billing.refund.schema.json" with {
   type: "json",
 };
-import commerceLineItem from "../../schemas/pragmatic/commerce.line-item.schema.json" with {
+import commerceLineItem from "./pragmatic/commerce.line-item.schema.json" with {
   type: "json",
 };
-import commerceOrder from "../../schemas/pragmatic/commerce.order.schema.json" with {
+import commerceOrder from "./pragmatic/commerce.order.schema.json" with {
   type: "json",
 };
-import commercePrice from "../../schemas/pragmatic/commerce.price.schema.json" with {
+import commercePrice from "./pragmatic/commerce.price.schema.json" with {
   type: "json",
 };
-import commerceProduct from "../../schemas/pragmatic/commerce.product.schema.json" with {
+import commerceProduct from "./pragmatic/commerce.product.schema.json" with {
   type: "json",
 };
-import contactCard from "../../schemas/pragmatic/contact.card.schema.json" with {
+import contactCard from "./pragmatic/contact.card.schema.json" with {
   type: "json",
 };
-import contactScalars from "../../schemas/pragmatic/contact.scalars.schema.json" with {
+import contactScalars from "./pragmatic/contact.scalars.schema.json" with {
   type: "json",
 };
-import contactSocialHandle from "../../schemas/pragmatic/contact.social-handle.schema.json" with {
+import contactSocialHandle from "./pragmatic/contact.social-handle.schema.json" with {
   type: "json",
 };
-import currencyCode from "../../schemas/pragmatic/currency-code.schema.json" with {
+import currencyCode from "./pragmatic/currency-code.schema.json" with {
   type: "json",
 };
-import externalReference from "../../schemas/pragmatic/external-reference.schema.json" with {
+import externalReference from "./pragmatic/external-reference.schema.json" with {
   type: "json",
 };
-import geo from "../../schemas/pragmatic/geo.schema.json" with { type: "json" };
-import money from "../../schemas/pragmatic/money.schema.json" with { type: "json" };
-import postalAddress from "../../schemas/pragmatic/postal.address.schema.json" with {
+import geo from "./pragmatic/geo.schema.json" with { type: "json" };
+import money from "./pragmatic/money.schema.json" with { type: "json" };
+import postalAddress from "./pragmatic/postal.address.schema.json" with {
   type: "json",
 };
-import postalAuAddress from "../../schemas/pragmatic/postal.au-address.schema.json" with {
+import postalAuAddress from "./pragmatic/postal.au-address.schema.json" with {
   type: "json",
 };
-import subdivisionCode from "../../schemas/pragmatic/subdivision-code.schema.json" with {
+import subdivisionCode from "./pragmatic/subdivision-code.schema.json" with {
   type: "json",
 };
-import usAddress from "../../schemas/pragmatic/us-address.schema.json" with {
+import usAddress from "./pragmatic/us-address.schema.json" with {
   type: "json",
 };
 

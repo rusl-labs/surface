@@ -26,7 +26,7 @@ What the Surface runtime **actually does** today.
 - Conventional view names: `default`, `identity`, `row`, `card` (open strings)
 - **Layout** `props` \| `stack` and **direction** `vertical` \| `horizontal` on views and sections
 - Open **widget** object (`name`, optional `$kind` / `options`, additional properties); whole object passed through
-- Format contract: [`annotation-format.schema.json`](./annotation-format.schema.json)
+- Format contract: [`schemas/rusl/surface.annotation.schema.json`](../schemas/rusl/surface.annotation.schema.json)
 - Model summary: [`annotation.md`](./annotation.md)
 - DX checklist: [`guides/annotation-dx.md`](./guides/annotation-dx.md)
 
@@ -40,7 +40,7 @@ What the Surface runtime **actually does** today.
 - **`createHtmlKit({ locale, money, tel, date, aliases, resolvers })`**
 - **`Surface` `labels`:** inherited; `false` hides field chrome
 - **Table:** display-only; sort is view-only; columns `field` / `label` / `sortable` / `align` / `fontWeight`
-- Vocabulary schema: `packages/html/schemas/default-kit.schema.json` (published as `@rusl-labs/surface-html/schemas/default-kit.schema.json`)
+- Vocabulary schema: `schemas/rusl/surface.default-kit.schema.json` (npm copy: `@rusl-labs/surface-html/schemas/default-kit.schema.json`)
 - `HtmlRoot`: Reset/Save **buttons** (not native form submit); before validate, deep-apply schema `const` (forced) + `default` (when missing); then validate → `onSubmit`; optional structured presence (Add/Remove) input-only
 - date-time: registered as `datetime`; `date-time` aliases in; `datetime-local` ↔ RFC 3339
 - tel: messy national draft, E.164 on blur; display is a locale `tel:` link
@@ -54,7 +54,7 @@ What the Surface runtime **actually does** today.
 
 ## Rusl / playground
 
-Vendored graph (`rusl.bundle.toml`): postal.address, money, contact.card, billing.invoice / payment / refund, **commerce.product / order / price**, and deps, plus `rusl/bundles/feedback-schemas`.
+Vendored graph (`rusl.bundle.toml`): `rusl/schemas/surface.annotation@0.1.0` and `rusl/schemas/surface.default-kit@0.1.0`. Playground subject seeds live under `tests/fixtures/` (pragmatic + rusl-feedback copies); they are not Rusl dependencies.
 
 Playground (`bun run playground`, `PORT` supported): **subject catalog** (searchable grouped sidebar) mounts any seeded `$id` with the seeded annotations; `?subject=` URL sync; Mode / View chrome; live annotation editor.
 
@@ -81,5 +81,5 @@ bun run playground   # PORT=3001 optional
 | Doc | Role |
 | --- | --- |
 | [annotation.md](./annotation.md) | Annotation model |
-| [annotation-format.schema.json](./annotation-format.schema.json) | Format contract |
+| [surface.annotation](../schemas/rusl/surface.annotation.schema.json) | Format contract |
 | [guides/building-kits.md](./guides/building-kits.md) | Kit guide |

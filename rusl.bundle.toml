@@ -1,13 +1,5 @@
 [rusl]
 
 [rusl.resources]
-"pragmatic/schemas/money" = ">=0.1.0"
-"pragmatic/schemas/postal.address" = "0.1.2"
-"pragmatic/schemas/contact.card" = ">=0.1.0"
-"pragmatic/schemas/billing.invoice" = ">=0.1.0"
-"pragmatic/schemas/commerce.product" = ">=0.1.0"
-"pragmatic/schemas/billing.payment" = ">=0.1.0"
-"pragmatic/schemas/billing.refund" = ">=0.1.0"
-"pragmatic/schemas/commerce.order" = ">=0.1.0"
-"pragmatic/schemas/commerce.price" = ">=0.1.0"
-"rusl/bundles/feedback-schemas" = ">=0.1.0"
+"rusl/schemas/surface.annotation" = "0.1.0"
+"rusl/schemas/surface.default-kit" = "0.1.0"

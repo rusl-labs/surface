@@ -1,29 +1,30 @@
 /**
- * Vendored rusl feedback-schemas seeds for playground dogfood.
+ * Local rusl feedback-schema seeds for playground dogfood.
+ * Not Rusl-installed; Surface's bundle only pins the two Surface contracts.
  */
 import type { Schema } from "../../packages/core/src/index.ts";
-import contextLoadingHint from "../../schemas/rusl/context-loading-hint.schema.json" with {
+import contextLoadingHint from "./rusl-feedback/context-loading-hint.schema.json" with {
   type: "json",
 };
-import contextRequest from "../../schemas/rusl/context-request.schema.json" with {
+import contextRequest from "./rusl-feedback/context-request.schema.json" with {
   type: "json",
 };
-import domainInterpretation from "../../schemas/rusl/domain-interpretation.schema.json" with {
+import domainInterpretation from "./rusl-feedback/domain-interpretation.schema.json" with {
   type: "json",
 };
-import migrationGuide from "../../schemas/rusl/migration-guide.schema.json" with {
+import migrationGuide from "./rusl-feedback/migration-guide.schema.json" with {
   type: "json",
 };
-import semanticLink from "../../schemas/rusl/semantic-link.schema.json" with {
+import semanticLink from "./rusl-feedback/semantic-link.schema.json" with {
   type: "json",
 };
-import sourceAttestation from "../../schemas/rusl/source-attestation.schema.json" with {
+import sourceAttestation from "./rusl-feedback/source-attestation.schema.json" with {
   type: "json",
 };
-import trustSignal from "../../schemas/rusl/trust-signal.schema.json" with {
+import trustSignal from "./rusl-feedback/trust-signal.schema.json" with {
   type: "json",
 };
-import usageReport from "../../schemas/rusl/usage-report.schema.json" with {
+import usageReport from "./rusl-feedback/usage-report.schema.json" with {
   type: "json",
 };
 

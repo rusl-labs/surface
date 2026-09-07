@@ -4,11 +4,11 @@ import {
   type Schema,
 } from "../../packages/core/src/index.ts";
 import { createAjvValidator } from "../../packages/ajv/src/index.ts";
-import postalAddress from "../../schemas/pragmatic/postal.address.schema.json" with { type: "json" };
-import usAddress from "../../schemas/pragmatic/us-address.schema.json" with { type: "json" };
-import auAddress from "../../schemas/pragmatic/postal.au-address.schema.json" with { type: "json" };
-import geo from "../../schemas/pragmatic/geo.schema.json" with { type: "json" };
-import subdivision from "../../schemas/pragmatic/subdivision-code.schema.json" with { type: "json" };
+import postalAddress from "../fixtures/pragmatic/postal.address.schema.json" with { type: "json" };
+import usAddress from "../fixtures/pragmatic/us-address.schema.json" with { type: "json" };
+import auAddress from "../fixtures/pragmatic/postal.au-address.schema.json" with { type: "json" };
+import geo from "../fixtures/pragmatic/geo.schema.json" with { type: "json" };
+import subdivision from "../fixtures/pragmatic/subdivision-code.schema.json" with { type: "json" };
 
 const POSTAL = postalAddress as Schema;
 const US = usAddress as Schema;

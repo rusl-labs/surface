@@ -265,7 +265,7 @@ describe("Surface annotation resolution", () => {
 
   test("the documents these tests use are valid annotation documents", async () => {
     const format = await Bun.file(
-      "docs/annotation-format.schema.json",
+      "schemas/rusl/surface.annotation.schema.json",
     ).json();
     const validate = new Ajv2020({
       strict: false,

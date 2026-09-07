@@ -24,7 +24,7 @@ import {
 const here = dirname(fileURLToPath(import.meta.url));
 const formatSchema = JSON.parse(
   readFileSync(
-    join(here, "../../docs/annotation-format.schema.json"),
+    join(here, "../../schemas/rusl/surface.annotation.schema.json"),
     "utf8",
   ),
 ) as object;

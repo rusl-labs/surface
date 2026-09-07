@@ -184,4 +184,4 @@ schema $id
 
 ## Envelope schema
 
-The annotation format contract: [annotation-format.schema.json](./annotation-format.schema.json)
+The annotation format contract: [`rusl/schemas/surface.annotation@0.1.0`](../schemas/rusl/surface.annotation.schema.json) ([readable copy](./annotation-format.schema.json)).
