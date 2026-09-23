@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fixed
 
 - Inline composition branches inherit annotation coordinates; inline array items use the bound entry’s `items` scope. Reindexing an unchanged supplied schema preserves its mounted editor.
+- Absolute URI nested mounts (e.g. HTML kit oneOf/anyOf `$ref` branches) re-root as their own subject instead of inheriting the parent coordinate.
 - Root `onSubmit` preserves returned promises so consumers can await completion or rejection.
 - After a failed Save, reactive revalidation reports validator rejection and discards stale results when data has been replaced.
 

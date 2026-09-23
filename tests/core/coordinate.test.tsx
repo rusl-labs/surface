@@ -164,6 +164,68 @@ describe("Surface coordinate", () => {
     });
   });
 
+  test("an absolute URI nested mount becomes its own subject root", async () => {
+    const BRANCH = "https://example.test/us-address";
+    const { kit, requests } = recordingKit({
+      id: BRANCH,
+      mode: "input",
+    });
+    const { Surface } = createSurfaceUi({
+      validator: acceptAllValidator,
+      schemaResolver: new InMemorySchemaFetchResolver({
+        [CONTACT]: {
+          $id: CONTACT,
+          type: "object",
+          oneOf: [{ $ref: BRANCH }],
+        },
+        [BRANCH]: {
+          $id: BRANCH,
+          type: "string",
+          title: "US address",
+        },
+      }),
+      kit,
+    });
+
+    render(<Surface id={CONTACT} mode="input" data="94105" />);
+
+    await waitFor(() => {
+      const child = requests.find(
+        (request) => request.schema.title === "US address",
+      );
+      expect(child?.coordinate).toEqual({ subject: BRANCH, path: [] });
+    });
+  });
+
+  test("an inline composition branch keeps the parent coordinate", async () => {
+    const { kit, requests } = recordingKit({
+      id: "union:0",
+      schema: { type: "string", title: "Inline branch" },
+      mode: "input",
+    });
+    const { Surface } = createSurfaceUi({
+      validator: acceptAllValidator,
+      schemaResolver: new InMemorySchemaFetchResolver({
+        [CONTACT]: {
+          $id: CONTACT,
+          type: "object",
+          title: "Contact",
+          oneOf: [{ type: "string" }],
+        },
+      }),
+      kit,
+    });
+
+    render(<Surface id={CONTACT} mode="input" data="94105" />);
+
+    await waitFor(() => {
+      const child = requests.find(
+        (request) => request.schema.title === "Inline branch",
+      );
+      expect(child?.coordinate).toEqual({ subject: CONTACT, path: [] });
+    });
+  });
+
   test("a hand-rolled property child carries no coordinate", async () => {
     const { kit, requests } = recordingKit({
       id: "email",

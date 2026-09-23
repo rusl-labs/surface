@@ -7,6 +7,7 @@ import {
   type ReactElement,
 } from "react";
 import {
+  isCompositionId,
   isDataInheritId,
   parseDataSlot,
   setChildValue,
@@ -294,10 +295,11 @@ function NestedSurface({
   } = props;
   const labels = labelsProp ?? parent.labels ?? true;
   // Inline composition branches share annotation scope; inline array items
-  // enter the bound entry's `items` scope. References establish their own subject.
+  // enter the bound entry's `items` scope. Absolute URI mounts share data but
+  // must not inherit coordinates — they re-root as their own subject.
   const inheritedCoordinate =
     schema?.$ref === undefined && schema?.$id === undefined
-      ? isDataInheritId(id)
+      ? isCompositionId(id)
         ? parent.coordinate
         : parent.schema?.type === "array" &&
             /^\d+$/.test(id) &&
