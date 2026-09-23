@@ -55,6 +55,8 @@ export interface RendererRequest {
  */
 export interface SurfaceKit {
   resolveRenderer(request: RendererRequest): SurfaceRenderer | undefined;
+  /** Applicable registered views, excluding names that only reach a fallback. */
+  getViews?(request: RendererRequest): readonly SurfaceViewName[];
   readonly fallback: SurfaceRenderer;
   /** When set, engine wraps the root body's renderer with this component. */
   readonly Root?: SurfaceRoot;
@@ -97,6 +99,7 @@ export interface RegistryKitOptions {
 
 /** A kit whose entry list can be extended after construction. */
 export interface RegistryKit extends SurfaceKit {
+  getViews(request: RendererRequest): readonly SurfaceViewName[];
   set(
     ...args:
       | [entry: RegistryEntry]
@@ -123,18 +126,26 @@ function componentFor(
  * candidate key in turn (last set wins) against `[mode][view]` then
  * `[mode].default`.
  */
+interface RendererMatch {
+  component: SurfaceRenderer;
+  view: SurfaceViewName | undefined;
+}
+
 export function createRegistryKit(options: RegistryKitOptions): RegistryKit {
   const entries: RegistryEntry[] = [...(options.resolvers ?? [])];
   const aliases = options.aliases ?? {};
 
-  function matchesMode(entry: RegistryEntry, request: RendererRequest): boolean {
+  function matchesMode(
+    entry: RegistryEntry,
+    request: RendererRequest,
+  ): boolean {
     return entry.mode === undefined || entry.mode === request.mode;
   }
 
   function lookupKey(
     key: string,
     request: RendererRequest,
-  ): SurfaceRenderer | undefined {
+  ): RendererMatch | undefined {
     const keyed = entries
       .filter((entry) => entry.key === key && matchesMode(entry, request))
       .reverse();
@@ -142,7 +153,7 @@ export function createRegistryKit(options: RegistryKitOptions): RegistryKit {
     for (const entry of keyed) {
       if (entry.view !== undefined && entry.view !== request.view) continue;
       const component = componentFor(entry, request);
-      if (component !== undefined) return component;
+      if (component !== undefined) return { component, view: entry.view };
     }
 
     if (request.view === "default") return undefined;
@@ -150,7 +161,7 @@ export function createRegistryKit(options: RegistryKitOptions): RegistryKit {
     for (const entry of keyed) {
       if (entry.view !== "default") continue;
       const component = componentFor(entry, request);
-      if (component !== undefined) return component;
+      if (component !== undefined) return { component, view: entry.view };
     }
 
     return undefined;
@@ -159,7 +170,7 @@ export function createRegistryKit(options: RegistryKitOptions): RegistryKit {
   function resolveKey(
     key: string,
     request: RendererRequest,
-  ): SurfaceRenderer | undefined {
+  ): RendererMatch | undefined {
     const direct = lookupKey(key, request);
     if (direct !== undefined) return direct;
     const aliased = aliases[key];
@@ -167,25 +178,41 @@ export function createRegistryKit(options: RegistryKitOptions): RegistryKit {
     return lookupKey(aliased, request);
   }
 
+  function resolveMatch(request: RendererRequest): RendererMatch | undefined {
+    for (const entry of entries) {
+      if (entry.key !== undefined) continue;
+      if (!matchesMode(entry, request)) continue;
+      if (entry.view !== undefined && entry.view !== request.view) continue;
+      const component = componentFor(entry, request);
+      if (component !== undefined) return { component, view: entry.view };
+    }
+
+    for (const key of request.keys) {
+      const component = resolveKey(key, request);
+      if (component !== undefined) return component;
+    }
+
+    return undefined;
+  }
+
   return {
     fallback: options.fallback,
     ...(options.Root !== undefined ? { Root: options.Root } : {}),
 
     resolveRenderer(request: RendererRequest): SurfaceRenderer | undefined {
+      return resolveMatch(request)?.component;
+    },
+
+    getViews(request: RendererRequest): readonly SurfaceViewName[] {
+      const candidates = new Set<SurfaceViewName>();
       for (const entry of entries) {
-        if (entry.key !== undefined) continue;
-        if (!matchesMode(entry, request)) continue;
-        if (entry.view !== undefined && entry.view !== request.view) continue;
-        const component = componentFor(entry, request);
-        if (component !== undefined) return component;
+        if (matchesMode(entry, request) && entry.view !== undefined)
+          candidates.add(entry.view);
       }
-
-      for (const key of request.keys) {
-        const component = resolveKey(key, request);
-        if (component !== undefined) return component;
-      }
-
-      return undefined;
+      return [...candidates].filter((view) => {
+        const match = resolveMatch({ ...request, view });
+        return match !== undefined && match.view === view;
+      });
     },
 
     set(

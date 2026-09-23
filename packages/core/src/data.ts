@@ -28,14 +28,21 @@ export interface SurfaceSubmitEvent {
   readonly data: unknown;
 }
 
+/** Composition branch mounts (`allOf:0`, `union:1`, …) — share parent data and annotation scope. */
+export function isCompositionId(id: string): boolean {
+  return /^(allOf|anyOf|oneOf|union):\d+$/.test(id);
+}
+
 /**
  * True when this mount shares its parent's data identity (no path segment).
  * Schema document URIs and composition ids (`allOf:0`, `union:1`, …).
+ *
+ * URI mounts still share data, but they must **not** inherit the parent's
+ * coordinate — they re-root as their own subject (see NestedSurface).
  */
 export function isDataInheritId(id: string): boolean {
   if (id.includes("://") || id.startsWith("urn:")) return true;
-  if (/^(allOf|anyOf|oneOf|union):\d+$/.test(id)) return true;
-  return false;
+  return isCompositionId(id);
 }
 
 /**

@@ -7,6 +7,7 @@ import {
   type ReactElement,
 } from "react";
 import {
+  isCompositionId,
   isDataInheritId,
   parseDataSlot,
   setChildValue,
@@ -19,11 +20,7 @@ import {
   resolveLabel,
   resolveViewChrome,
 } from "./helpers.js";
-import type {
-  SurfaceCoordinate,
-  SurfaceMode,
-  SurfaceViewName,
-} from "./kit.js";
+import type { SurfaceCoordinate, SurfaceMode, SurfaceViewName } from "./kit.js";
 import { candidateKeys } from "./lookups.js";
 import { splitSchemaUri } from "./resolvers/schema-uri.js";
 import {
@@ -158,17 +155,40 @@ function RootSurface({
       const target = validationTargetRef.current;
       if (target === null) return;
       const gen = ++revalidateGenRef.current;
-      void Promise.resolve(
-        options.validator.validate({
-          id: target.id,
-          schema: target.schema,
-          data,
-          schemaResolver: options.schemaResolver,
-        }),
-      ).then((result) => {
-        if (gen !== revalidateGenRef.current) return;
-        applyValidationResult(result);
-      });
+      void Promise.resolve()
+        .then(() =>
+          options.validator.validate({
+            id: target.id,
+            schema: target.schema,
+            data,
+            schemaResolver: options.schemaResolver,
+          }),
+        )
+        .then((result) => {
+          if (
+            gen !== revalidateGenRef.current ||
+            !Object.is(dataRef.current, data)
+          )
+            return;
+          applyValidationResult(result);
+        })
+        .catch((cause: unknown) => {
+          if (
+            gen !== revalidateGenRef.current ||
+            !Object.is(dataRef.current, data)
+          )
+            return;
+          applyValidationResult({
+            valid: false,
+            issues: [
+              {
+                path: [],
+                code: "validation",
+                message: cause instanceof Error ? cause.message : String(cause),
+              },
+            ],
+          });
+        });
     },
     [options.validator, options.schemaResolver, applyValidationResult],
   );
@@ -198,6 +218,7 @@ function RootSurface({
         scheduleRevalidate(updated);
       },
       reportValidation(result: ValidateResult) {
+        revalidateGenRef.current += 1;
         applyValidationResult(result);
       },
       reset() {
@@ -230,7 +251,7 @@ function RootSurface({
     ...(onSubmit !== undefined
       ? {
           onSubmit: (event) => {
-            onSubmitRef.current?.(event);
+            return onSubmitRef.current?.(event);
           },
         }
       : {}),
@@ -265,14 +286,28 @@ function NestedSurface({
     document,
     documentUri,
     data: dataProp,
-    mode = "input",
-    view = "default",
+    mode = parent.mode ?? "input",
+    view = parent.view ?? "default",
     labels: labelsProp,
     coordinate,
     entry,
     validity: validityProp,
   } = props;
   const labels = labelsProp ?? parent.labels ?? true;
+  // Inline composition branches share annotation scope; inline array items
+  // enter the bound entry's `items` scope. Absolute URI mounts share data but
+  // must not inherit coordinates — they re-root as their own subject.
+  const inheritedCoordinate =
+    schema?.$ref === undefined && schema?.$id === undefined
+      ? isCompositionId(id)
+        ? parent.coordinate
+        : parent.schema?.type === "array" &&
+            /^\d+$/.test(id) &&
+            parent.coordinate
+          ? { ...parent.coordinate, path: [...parent.coordinate.path, "items"] }
+          : undefined
+      : undefined;
+  const effectiveCoordinate = coordinate ?? inheritedCoordinate;
 
   const inherit = isDataInheritId(id);
   const slot = parseDataSlot(id);
@@ -314,9 +349,7 @@ function NestedSurface({
   const validity = validityProp ?? projected;
 
   // Prefer live parent data on inherit mounts; props for slot children.
-  const liveData = inherit
-    ? (parent.dataApi?.data ?? dataProp)
-    : dataProp;
+  const liveData = inherit ? (parent.dataApi?.data ?? dataProp) : dataProp;
 
   const shell: SurfaceContext = {
     isRoot: false,
@@ -334,7 +367,9 @@ function NestedSurface({
     dataPath,
     ...(validity !== undefined ? { validity } : {}),
     ...(parent.onSubmit !== undefined ? { onSubmit: parent.onSubmit } : {}),
-    ...(coordinate !== undefined ? { coordinate } : {}),
+    ...(effectiveCoordinate !== undefined
+      ? { coordinate: effectiveCoordinate }
+      : {}),
     ...(entry !== undefined ? { entry } : {}),
     ...(parent.annotation !== undefined
       ? { annotation: parent.annotation }
@@ -381,7 +416,9 @@ function subjectRootCoordinate(
     provided !== undefined
       ? typeof provided.$ref === "string"
         ? provided.$ref
-        : undefined
+        : typeof provided.$id === "string"
+          ? provided.$id
+          : undefined
       : id;
   if (reached === undefined) return undefined;
 
@@ -412,7 +449,7 @@ function ResolvedSurfaceBody(): ReactElement {
       : subjectRootCoordinate(shell.id, shell.schema, schema, documentUri));
 
   const mode: SurfaceMode = shell.mode ?? "input";
-  const view: SurfaceViewName = shell.view ?? "default";
+  const requestedView: SurfaceViewName = shell.view ?? "default";
   const id = shell.id ?? "";
 
   // Root needs the resolved schema to re-validate after a failed Save.
@@ -424,14 +461,17 @@ function ResolvedSurfaceBody(): ReactElement {
     shell.registerValidationTarget?.({ id: targetId, schema });
   }, [shell.isRoot, shell.registerValidationTarget, schema, id]);
 
+  const resolvedEntry = resolveAnnotationEntry({
+    ...(annotation !== undefined ? { annotation } : {}),
+    ...(coordinate !== undefined ? { coordinate } : {}),
+    view: requestedView,
+    mode,
+  });
   const entry: AnnotationEntry | undefined =
-    shell.entry ??
-    resolveAnnotationEntry({
-      ...(annotation !== undefined ? { annotation } : {}),
-      ...(coordinate !== undefined ? { coordinate } : {}),
-      view,
-      mode,
-    });
+    shell.entry === undefined
+      ? resolvedEntry
+      : { ...resolvedEntry, ...shell.entry };
+  const view: SurfaceViewName = entry?.view ?? requestedView;
 
   const helpers: SurfaceHelpers | undefined =
     schema === undefined
@@ -494,7 +534,7 @@ function ResolvedSurfaceBody(): ReactElement {
     ...(shell.id !== undefined ? { id: shell.id } : {}),
     ...(shell.data !== undefined ? { data: shell.data } : {}),
     ...(shell.mode !== undefined ? { mode: shell.mode } : {}),
-    ...(shell.view !== undefined ? { view: shell.view } : {}),
+    view,
     ...(shell.labels !== undefined ? { labels: shell.labels } : {}),
     ...(schema !== undefined ? { schema } : {}),
     ...(document !== undefined ? { document } : {}),
@@ -518,7 +558,9 @@ function ResolvedSurfaceBody(): ReactElement {
     schema === undefined ||
     shell.options === undefined
   ) {
-    return <SurfaceContextProvider value={context}>{null}</SurfaceContextProvider>;
+    return (
+      <SurfaceContextProvider value={context}>{null}</SurfaceContextProvider>
+    );
   }
 
   const { kit } = shell.options;

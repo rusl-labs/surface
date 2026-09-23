@@ -187,8 +187,7 @@ describe("HTML kit tel widget", () => {
     const input = container.querySelector(
       'input[type="tel"]',
     ) as HTMLInputElement;
-    input.value = "(415) 555-0100";
-    fireEvent.input(input);
+    fireEvent.input(input, { target: { value: "(415) 555-0100" } });
     fireEvent.blur(input);
 
     fireEvent.click(

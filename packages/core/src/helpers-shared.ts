@@ -1,8 +1,4 @@
-import type {
-  SurfaceCoordinate,
-  SurfaceMode,
-  SurfaceViewName,
-} from "./kit.js";
+import type { SurfaceCoordinate, SurfaceMode, SurfaceViewName } from "./kit.js";
 import type {
   AnnotationDocument,
   AnnotationEntry,
@@ -63,6 +59,7 @@ export type FieldChild =
       readonly direction?: FieldDirection;
       /** Nested yields (already computed; call returns the same list). */
       readonly children: () => readonly FieldChild[];
+      readonly widget?: AnnotationWidget;
     }
   | {
       readonly kind: "heading";
@@ -112,7 +109,9 @@ export function parseFieldLayout(value: unknown): FieldLayout | undefined {
   return value === "props" || value === "stack" ? value : undefined;
 }
 
-export function parseFieldDirection(value: unknown): FieldDirection | undefined {
+export function parseFieldDirection(
+  value: unknown,
+): FieldDirection | undefined {
   return value === "vertical" || value === "horizontal" ? value : undefined;
 }
 
@@ -176,6 +175,11 @@ export function decorationMap(
       if (typeof raw.name === "string") {
         map.set([...chain, raw.name].join("/"), raw);
         if (Array.isArray(raw.fields)) walk(raw.fields, [...chain, raw.name]);
+        if (isRecord(raw.items)) {
+          const itemChain = [...chain, raw.name, "items"];
+          map.set(itemChain.join("/"), raw.items);
+          walk(raw.items.fields, itemChain);
+        }
       } else if (Array.isArray(raw.fields)) {
         walk(raw.fields, chain);
       }
@@ -206,7 +210,9 @@ export function effectiveDecoration(
 
   for (const k of DECORATION_KEYS) {
     let v: unknown =
-      inherit !== undefined && inherit[k] !== undefined ? inherit[k] : undefined;
+      inherit !== undefined && inherit[k] !== undefined
+        ? inherit[k]
+        : undefined;
     if (entry !== undefined && entry[k] !== undefined) v = entry[k];
 
     const modeInherit = isRecord(inherit?.[mode])
@@ -250,7 +256,9 @@ export function effectiveDecoration(
   return out;
 }
 
-export function toResolvedEntry(decor: Decoration): AnnotationEntry | undefined {
+export function toResolvedEntry(
+  decor: Decoration,
+): AnnotationEntry | undefined {
   const entry: {
     -readonly [K in keyof AnnotationEntry]?: AnnotationEntry[K];
   } = {};
@@ -286,7 +294,11 @@ export function fieldLabel(
       if (isRecord(block) && isRecord(block.views)) {
         const named = block.views[childView];
         const dflt = block.views.default;
-        const viewRec = isRecord(named) ? named : isRecord(dflt) ? dflt : undefined;
+        const viewRec = isRecord(named)
+          ? named
+          : isRecord(dflt)
+            ? dflt
+            : undefined;
         if (viewRec !== undefined && typeof viewRec.label === "string") {
           return viewRec.label;
         }
@@ -339,8 +351,7 @@ export function emitField(
   annotation: AnnotationDocument | undefined,
 ): FieldChild | undefined {
   if (decor.omit === true) return undefined;
-  const childView =
-    typeof decor.view === "string" ? decor.view : parentView;
+  const childView = typeof decor.view === "string" ? decor.view : parentView;
   const label = fieldLabel(name, decor, propSchema, annotation, childView);
   // Effective label lives on the entry so helpers.label() matches FieldChild.label.
   const base = toResolvedEntry(decor);
@@ -479,7 +490,6 @@ export function emitRest(
   }
   return out;
 }
-
 
 export function nestedEntryLayout(
   views: Record<string, unknown> | undefined,

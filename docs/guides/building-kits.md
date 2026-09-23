@@ -39,6 +39,7 @@ The kit contract is `SurfaceKit`:
 ```ts
 interface SurfaceKit {
   resolveRenderer(request: RendererRequest): SurfaceRenderer | undefined;
+  getViews?(request: RendererRequest): readonly SurfaceViewName[];
   readonly fallback: SurfaceRenderer;
   readonly Root?: SurfaceRoot;
 }
@@ -102,6 +103,15 @@ Returning `null` means "not me." The next key or entry continues.
 kit.set(PERSON_ID, "display", "card", PersonCard);
 kit.set({ key: PERSON_ID, mode: "display", view: "card", component: PersonCard });
 ```
+
+### Discover registered views
+
+`createRegistryKit` provides `kit.getViews(request)`. It returns explicit view names that actually win for the request's candidate keys, aliases, mode, and current data. It uses the same precedence and resolver rejection rules as rendering; the request's current `view` does not limit discovery.
+
+An entry without `view` matches all views but does not declare names to put in a menu. Unrelated registrations, shadowed mappings, and names that only fall back to a default renderer are excluded. Dynamic `resolve` callbacks are evaluated during discovery, so keep them free of side effects.
+
+Applications can combine these names with the active annotation scope's view names, deduplicate, and hide the selector when fewer than two choices remain. Custom handwritten kits can implement the optional `getViews` capability.
+
 
 ---
 

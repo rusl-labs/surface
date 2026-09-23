@@ -137,11 +137,14 @@ function walkList(
     if (typeof raw.label === "string" && raw.name === undefined) {
       const decor = effectiveDecoration(raw, "", defaults, mode);
       if (decor.omit === true) continue;
+      const chromeLabel =
+        typeof decor.label === "string" ? decor.label : raw.label;
       if (!Array.isArray(raw.fields)) {
+        if (chromeLabel.length === 0) continue;
         out.push({
           kind: "heading",
-          key: `heading:${raw.label}:${out.length}`,
-          label: raw.label,
+          key: `heading:${chromeLabel}:${out.length}`,
+          label: chromeLabel,
         });
         continue;
       }
@@ -171,11 +174,12 @@ function walkList(
       const sectionDirection = parseFieldDirection(raw.direction);
       out.push({
         kind: "section",
-        key: `section:${raw.label}:${out.length}`,
-        label: raw.label,
+        key: `section:${chromeLabel}:${out.length}`,
+        label: chromeLabel,
         ...(decor.description !== undefined
           ? { description: decor.description }
           : {}),
+        ...(decor.widget !== undefined ? { widget: decor.widget } : {}),
         ...(sectionLayout !== undefined ? { layout: sectionLayout } : {}),
         ...(sectionDirection !== undefined
           ? { direction: sectionDirection }

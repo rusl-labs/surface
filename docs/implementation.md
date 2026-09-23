@@ -14,10 +14,14 @@ What the Surface runtime **actually does** today.
 
 - Kit registry: `resolveRenderer` + `fallback`; candidate keys `$id` → **subject-root coordinate** (`<uri>` or `<uri>#/$defs/<name>`) → **`widget.$kind`** → `widget:name` → format → const → enum → type → combinators
 - `createRegistryKit({ aliases })` — one hop; explicit alias-key registration wins
+- Registry `getViews(request)` lists explicit view registrations that win for the current keys, aliases, mode, and data. Wildcards, shadowed entries, and default-fallback matches do not invent named views. Handwritten kits may implement this optional capability.
 - Optional `kit.Root` wraps the root body (`isRoot`)
 - Schema + annotation resolve; coordinates; `helpers.fields` / `label` / `description` / **`layout`** / **`direction`**
 - Data channel: controlled or draft; `setData` / `setChild`; omit optional keys on Remove (`undefined`)
 - Validity: required `SurfaceValidator`; issues by data path; re-validate after failed Save
+- Inline schemas establish document scope for local references and annotation lookup, without requiring a duplicate resolver registration.
+- Inline composition branches inherit annotation coordinates; inline array items use the bound entry's `items` scope. Reindexing an unchanged supplied schema preserves its mounted editor.
+- Root `onSubmit` preserves returned promises. Reactive revalidation catches validator rejection and discards results for replaced data.
 
 ## Annotation (runtime)
 
@@ -29,6 +33,8 @@ What the Surface runtime **actually does** today.
 - Format contract: [rusl/schemas/surface.annotation](https://rusl.com/rusl/schemas/surface.annotation)
 - Model summary: [`annotation.md`](./annotation.md)
 - DX checklist: [`guides/annotation-dx.md`](./guides/annotation-dx.md)
+- Metadata-only named views provide subject-root chrome independently of field-list layout.
+- Section widget treatments are not implemented; `kit.Root` remains the root presentation hook (views do not declare a root widget).
 
 ## HTML kit
 
