@@ -28,6 +28,59 @@ function request(overrides: Partial<RendererRequest> = {}): RendererRequest {
 }
 
 describe("registry kit", () => {
+  test("lists only applicable mode and alias views, honoring resolver rejection", () => {
+    const kit = createRegistryKit({
+      fallback: Fallback,
+      aliases: { [MONEY]: "string" },
+      resolvers: [
+        {
+          key: "string",
+          mode: "display",
+          view: "default",
+          component: StringDisplay,
+        },
+        {
+          key: "string",
+          mode: "display",
+          view: "card",
+          resolve: (req) => (req.data === "pro" ? StringCard : null),
+        },
+        {
+          key: "string",
+          mode: "input",
+          view: "compact",
+          component: StringInput,
+        },
+        { key: "object", mode: "display", view: "row", component: TenantCard },
+      ],
+    });
+    expect(
+      kit.getViews(request({ keys: [MONEY], mode: "display", data: "pro" })),
+    ).toEqual(["default", "card"]);
+    expect(
+      kit.getViews(request({ keys: [MONEY], mode: "display", data: "free" })),
+    ).toEqual(["default"]);
+    expect(kit.getViews(request({ keys: [MONEY], mode: "input" }))).toEqual([
+      "compact",
+    ]);
+  });
+
+  test("wildcards and shadowed registrations do not invent view choices", () => {
+    const kit = createRegistryKit({
+      fallback: Fallback,
+      resolvers: [
+        { key: MONEY, component: MoneyInput },
+        { key: "string", view: "card", component: StringCard },
+      ],
+    });
+    expect(kit.getViews(request({ keys: [MONEY, "string"] }))).toEqual([]);
+    expect(kit.getViews(request({ keys: ["object"] }))).toEqual([]);
+    kit.set(MONEY, "display", "identity", MoneyInput);
+    expect(
+      kit.getViews(request({ keys: [MONEY, "string"], mode: "display" })),
+    ).toEqual(["identity"]);
+  });
+
   test("resolves a keyed entry for the request's mode", () => {
     const kit = createRegistryKit({
       fallback: Fallback,
@@ -49,9 +102,9 @@ describe("registry kit", () => {
       resolvers: [{ key: "string", component: StringInput }],
     });
 
-    expect(kit.resolveRenderer(request({ mode: "display", view: "card" }))).toBe(
-      StringInput,
-    );
+    expect(
+      kit.resolveRenderer(request({ mode: "display", view: "card" })),
+    ).toBe(StringInput);
   });
 
   test("prefers the entry for the requested view over the default view", () => {

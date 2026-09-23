@@ -1,9 +1,5 @@
 import type { SurfaceCoordinate, SurfaceViewName } from "./kit.js";
-import type {
-  AnnotationDocument,
-  AnnotationEntry,
-  Schema,
-} from "./types.js";
+import type { AnnotationDocument, AnnotationEntry, Schema } from "./types.js";
 import type {
   FieldDirection,
   FieldLayout,
@@ -63,7 +59,13 @@ export function resolveViewChrome(input: {
   if (annotation === undefined || coordinate === undefined) return {};
   if (coordinate.path.length > 0) return {};
   const views = viewsForSubject(annotation, coordinate.subject);
-  const block = layoutView(views, view);
+  const named = views?.[view];
+  const fallback = views?.default;
+  const block = isRecord(named)
+    ? named
+    : isRecord(fallback)
+      ? fallback
+      : undefined;
   if (block === undefined) return {};
   const fieldLayout = parseFieldLayout(block.layout);
   const fieldDirection = parseFieldDirection(block.direction);
@@ -93,8 +95,12 @@ export function resolveLabel(input: {
   if (input.view !== undefined) {
     const chrome = resolveViewChrome({
       view: input.view,
-      ...(input.annotation !== undefined ? { annotation: input.annotation } : {}),
-      ...(input.coordinate !== undefined ? { coordinate: input.coordinate } : {}),
+      ...(input.annotation !== undefined
+        ? { annotation: input.annotation }
+        : {}),
+      ...(input.coordinate !== undefined
+        ? { coordinate: input.coordinate }
+        : {}),
     });
     if (chrome.label !== undefined) return chrome.label;
   }
@@ -103,7 +109,11 @@ export function resolveLabel(input: {
     return typeof input.schema?.title === "string" ? input.schema.title : "";
   }
   if (id.length === 0) return "";
-  if (/^(allOf|anyOf|oneOf|union):\d+$/.test(id) || /^\d+$/.test(id)) return "";
+  if (/^\d+$/.test(id))
+    return typeof input.schema?.title === "string"
+      ? input.schema.title
+      : `Item ${Number(id) + 1}`;
+  if (/^(allOf|anyOf|oneOf|union):\d+$/.test(id)) return "";
   return id;
 }
 

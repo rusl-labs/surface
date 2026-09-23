@@ -1,0 +1,54 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing requires npm ≥ 11.5.1 (OIDC auth, no NPM_TOKEN).
+      - run: npm install -g npm@^11.15.0
+
+      # Monorepo: publish only packages whose version matches the tag (e.g. v0.1.1).
+      - name: Publish packages matching tag version
+        run: |
+          set -euo pipefail
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          published=0
+          for pkg in packages/*/package.json; do
+            dir=$(dirname "$pkg")
+            name=$(jq -r .name "$pkg")
+            version=$(jq -r .version "$pkg")
+            if [ "$version" != "$TAG_VERSION" ]; then
+              echo "Skipping $name@$version (tag is v$TAG_VERSION)"
+              continue
+            fi
+            echo "Publishing $name@$version from $dir"
+            (cd "$dir" && npm publish --access public)
+            published=$((published + 1))
+          done
+          if [ "$published" -eq 0 ]; then
+            echo "No package version matched tag v$TAG_VERSION"
+            exit 1
+          fi

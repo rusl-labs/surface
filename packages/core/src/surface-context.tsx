@@ -1,11 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { SurfaceDataApi, SurfaceSubmitEvent } from "./data.js";
 import type { FieldChild } from "./helpers.js";
-import type {
-  SurfaceCoordinate,
-  SurfaceMode,
-  SurfaceViewName,
-} from "./kit.js";
+import type { SurfaceCoordinate, SurfaceMode, SurfaceViewName } from "./kit.js";
 import { resolveSchemaRef, splitSchemaUri } from "./resolvers/schema-uri.js";
 import type {
   AnnotationDocument,
@@ -102,7 +98,9 @@ export const DEFAULT_SURFACE_CONTEXT: SurfaceContext = Object.freeze({
   isRoot: true,
 });
 
-const SurfaceReactContext = createContext<SurfaceContext>(DEFAULT_SURFACE_CONTEXT);
+const SurfaceReactContext = createContext<SurfaceContext>(
+  DEFAULT_SURFACE_CONTEXT,
+);
 
 export const SurfaceContextProvider = SurfaceReactContext.Provider;
 
@@ -144,7 +142,7 @@ type NodeInputs = {
  *
  * 1. Inline `schema` with `$ref` → relative against context document, or
  *    absolute via resolver (load document, then apply fragment).
- * 2. Inline `schema` without `$ref` → use as-is; keep context document.
+ * 2. Inline `schema` without `$ref` → establish its document, or keep parent scope.
  * 3. Else load by `id` via resolver (supports `#/$defs/...` fragments).
  */
 async function resolveNodeSchema({
@@ -158,12 +156,17 @@ async function resolveNodeSchema({
     const ref = typeof provided.$ref === "string" ? provided.$ref : undefined;
 
     if (ref === undefined) {
+      const ownsDocument =
+        typeof provided.$id === "string" || contextDocument === undefined;
+      const document = ownsDocument ? provided : contextDocument;
+      const documentUri =
+        typeof provided.$id === "string"
+          ? provided.$id
+          : (contextDocumentUri ?? id);
       return {
         schema: provided,
-        ...(contextDocument !== undefined ? { document: contextDocument } : {}),
-        ...(contextDocumentUri !== undefined
-          ? { documentUri: contextDocumentUri }
-          : {}),
+        document,
+        ...(documentUri !== undefined ? { documentUri } : {}),
       };
     }
 
@@ -206,9 +209,12 @@ function annotationSubject({
     provided !== undefined
       ? typeof provided.$ref === "string"
         ? provided.$ref
-        : undefined
+        : typeof provided.$id === "string"
+          ? provided.$id
+          : (contextDocumentUri ?? id)
       : id;
-  if (reached === undefined || reached.startsWith("#")) return contextDocumentUri;
+  if (reached === undefined || reached.startsWith("#"))
+    return contextDocumentUri;
 
   const { documentUri } = splitSchemaUri(reached);
   return documentUri.length > 0 ? documentUri : contextDocumentUri;
@@ -228,7 +234,8 @@ async function resolveNodeAnnotation(
 ): Promise<AnnotationDocument | undefined> {
   const subject = annotationSubject(inputs);
   if (resolver === undefined || subject === undefined) return undefined;
-  if (subject === inputs.contextDocumentUri) return inherited;
+  if (subject === inputs.contextDocumentUri && inherited !== undefined)
+    return inherited;
 
   try {
     return await resolver.resolveAnnotation(subject);
@@ -249,13 +256,22 @@ export function useResolvedNode(): ResolvedSurfaceNode {
   } = useSurface();
   const schemaResolver = options?.schemaResolver;
   const annotationResolver = options?.annotationResolver;
+  // A supplied child schema resolves in its document, not by its data-slot id.
+  // Reindexing a surviving array row must not unload/remount its editor.
+  const resolutionId =
+    provided !== undefined &&
+    (contextDocument !== undefined ||
+      typeof provided.$id === "string" ||
+      typeof provided.$ref === "string")
+      ? undefined
+      : id;
 
   const [state, setState] = useState<ResolvedSurfaceNode>({ loading: true });
 
   useEffect(() => {
     let cancelled = false;
     const inputs: NodeInputs = {
-      id,
+      id: resolutionId,
       provided,
       schemaResolver,
       contextDocument,
@@ -266,11 +282,9 @@ export function useResolvedNode(): ResolvedSurfaceNode {
       setState({ loading: true });
 
       const [outcome, annotation] = await Promise.all([
-        resolveNodeSchema(inputs).catch(
-          (cause: unknown): SchemaOutcome => ({
-            error: cause instanceof Error ? cause.message : String(cause),
-          }),
-        ),
+        resolveNodeSchema(inputs).catch((cause: unknown): SchemaOutcome => ({
+          error: cause instanceof Error ? cause.message : String(cause),
+        })),
         resolveNodeAnnotation(inputs, annotationResolver, inherited),
       ]);
       if (cancelled) return;
@@ -294,7 +308,7 @@ export function useResolvedNode(): ResolvedSurfaceNode {
     schemaResolver,
     annotationResolver,
     inherited,
-    id,
+    resolutionId,
   ]);
 
   return state;
