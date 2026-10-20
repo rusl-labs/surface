@@ -102,6 +102,54 @@ A field entry can carry mode-specific decoration under `input` or `display`. Use
 { "name": "email", "display": { "widget": { "name": "link" } } }
 ```
 
+### Standalone presentation entries
+
+A heading-only entry can request a kit treatment without heading text:
+
+```json
+{ "label": "", "widget": { "name": "separator" } }
+```
+
+This uses the existing section-entry schema; no new entry kind is needed.
+`listFields()` / `helpers.fields()` yields `kind: "heading"`, preserving `label`,
+`widget` (including `$kind`, options, and custom properties), `description`,
+`layout`, and `direction`. The kit owns rendering the treatment; core does not
+special-case `separator` or automatically dispatch structural entries as bound
+Surface nodes. Unknown treatments should degrade to ordinary heading text (no
+visible content when that text is empty).
+
+| Authoring case | Helper behavior |
+| --- | --- |
+| Empty heading, no effective widget | Pruned, even if a description is present |
+| Heading without `fields`, with an effective widget | Preserved, including an empty label |
+| Section with participating children | Preserved with metadata and children |
+| Section whose children are all omitted | Pruned, even with a widget |
+
+`omit: true` still prunes the entry. `input` / `display` overrides select the
+effective widget, label, and description; `widget: null` clears the treatment.
+Virtual headings have no bound-field identity and do not inherit decorations
+from another view's headings. Existing bound-field view inheritance is unchanged.
+Do not use `fields: []` for standalone entries: the schema requires nonempty
+field lists. Omit `fields` instead.
+
+This works inside inline array-item `items.fields` too:
+
+```json
+{
+  "name": "issues",
+  "items": {
+    "fields": [
+      { "name": "subject", "label": "Subject" },
+      { "label": "", "widget": { "name": "separator" } },
+      { "name": "description", "label": "Description" }
+    ]
+  }
+}
+```
+
+This is presentation **inside each item**, not a separator between items.
+Collection renderers own inter-item placement.
+
 ### Arrays that point at another schema
 
 Two kinds of arrays:

@@ -140,11 +140,23 @@ function walkList(
       const chromeLabel =
         typeof decor.label === "string" ? decor.label : raw.label;
       if (!Array.isArray(raw.fields)) {
-        if (chromeLabel.length === 0) continue;
+        // A widget is explicit standalone presentation intent, even without
+        // heading text. Do not apply this exception to emptied sections below.
+        if (chromeLabel.length === 0 && decor.widget === undefined) continue;
+        const headingLayout = parseFieldLayout(raw.layout);
+        const headingDirection = parseFieldDirection(raw.direction);
         out.push({
           kind: "heading",
           key: `heading:${chromeLabel}:${out.length}`,
           label: chromeLabel,
+          ...(decor.description !== undefined
+            ? { description: decor.description }
+            : {}),
+          ...(decor.widget !== undefined ? { widget: decor.widget } : {}),
+          ...(headingLayout !== undefined ? { layout: headingLayout } : {}),
+          ...(headingDirection !== undefined
+            ? { direction: headingDirection }
+            : {}),
         });
         continue;
       }

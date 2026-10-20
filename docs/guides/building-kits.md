@@ -255,6 +255,14 @@ for (const item of helpers.fields()) {
 }
 ```
 
+Handle `kind: "heading"` as well: its optional `widget` is an explicit standalone
+kit treatment and its `label` may intentionally be empty. Do not discard such an
+entry based on label length. The heading also exposes optional `description`,
+`layout`, and `direction`. Interpret widget metadata in the kit, with ordinary
+heading text as the fallback for an unknown treatment. Core does not invoke a
+bound-node renderer for these structural entries. See [standalone presentation
+entries](../annotation.md#standalone-presentation-entries) for pruning rules.
+
 Helpers are opt-in. A kit that ignores them still renders. It just does not honor annotations.
 
 `helpers.layout()` returns `"props"` (default) or `"stack"`. `helpers.direction()` returns `"vertical"` (default) or `"horizontal"`. The HTML kit stamps `data-surface-layout`, `data-surface-direction`, and classes `surface-layout-*` / `surface-direction-*`.

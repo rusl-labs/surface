@@ -64,7 +64,12 @@ export type FieldChild =
   | {
       readonly kind: "heading";
       readonly key: string;
+      /** May be empty when widget requests standalone presentation. */
       readonly label: string;
+      readonly description?: string;
+      readonly layout?: FieldLayout;
+      readonly direction?: FieldDirection;
+      readonly widget?: AnnotationWidget;
     }
   | {
       readonly kind: "template";
